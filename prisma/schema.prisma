@@ -8,30 +8,17 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum UserSubscriptionType {
-  Slots
-  Unlimited
-  H24
-}
-
-enum TenantSubscriptionType {
-  Standard
-  Premium
-}
-
 model Tenant {
   id               String                 @id @default(uuid()) @db.Uuid
   expiresAt        DateTime
   ownerId          String
-  subscriptionType TenantSubscriptionType
   createdAt        DateTime               @default(now())
   updatedAt        DateTime               @updatedAt
-
-  // Relations
-  users      User[]
-  usersInfo  UserInfo[]
-  accessLogs AccessLog[]
-  TenantInfo TenantInfo[]
+  subscriptionType TenantSubscriptionType
+  accessLogs       AccessLog[]
+  TenantInfo       TenantInfo?
+  users            User[]
+  usersInfo        UserInfo[]
 
   @@map("tenants")
 }
@@ -40,17 +27,15 @@ model User {
   id               String               @id @default(uuid()) @db.Uuid
   tenantId         String               @db.Uuid
   expiresAt        DateTime
-  subscriptionType UserSubscriptionType
   name             String
-  remainingSlots   Int? // Changed from access_left for clarity
-  status           Boolean              @default(true) // Active/Inactive status
+  remainingSlots   Int?
+  status           Boolean              @default(true)
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
-
-  // Relations
-  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  userInfo   UserInfo?
-  accessLogs AccessLog[]
+  subscriptionType UserSubscriptionType
+  accessLogs       AccessLog[]
+  tenant           Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userInfo         UserInfo?
 
   @@map("users")
 }
@@ -59,7 +44,7 @@ model UserInfo {
   userId           String    @id @db.Uuid
   tenantId         String    @db.Uuid
   birthDate        DateTime?
-  address          String?   @db.Text
+  address          String?
   email            String?
   phoneNumber      String?
   birthPlace       String?
@@ -67,13 +52,11 @@ model UserInfo {
   nationality      String?
   gender           String?
   emergencyContact String?
-  notes            String?   @db.Text
+  notes            String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("users_info")
 }
@@ -84,28 +67,34 @@ model AccessLog {
   tenantId  String   @db.Uuid
   userId    String   @db.Uuid
   door      Int?
-
   createdAt DateTime @default(now())
-
-  // Relations
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("access_logs")
 }
 
 model TenantInfo {
   id          String   @id @db.Uuid
-  address     String?  @db.Text
+  address     String?
   vatNumber   String?  @db.VarChar(100)
-  documents   String?  @db.Text
+  documents   String?
   phoneNumber String?  @db.VarChar(50)
-  website     String?  @db.Text
+  website     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  tenant Tenant @relation(fields: [id], references: [id], onDelete: Cascade)
+  tenant      Tenant   @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("tenant_info")
+}
+
+enum UserSubscriptionType {
+  Slots
+  Unlimited
+  H24
+}
+
+enum TenantSubscriptionType {
+  Standard
+  Premium
 }
