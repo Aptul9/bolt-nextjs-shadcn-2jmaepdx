@@ -2,70 +2,70 @@ import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/api/prisma";
 import messages from "@/constants/messages";
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
+// export async function GET(request: NextRequest) {
+//   const { searchParams } = request.nextUrl;
 
-  // Extract query parameters
-  const tenantId = searchParams.get("tenantId");
-  const userId = searchParams.get("userId");
-  const limit = searchParams.get("limit");
-  const page = searchParams.get("page");
+//   // Extract query parameters
+//   const tenantId = searchParams.get("tenantId");
+//   const userId = searchParams.get("userId");
+//   const limit = searchParams.get("limit");
+//   const page = searchParams.get("page");
 
-  // Configure pagination
-  const pagination = {
-    ...(limit && { limit: parseInt(limit, 10) }),
-    ...(page && { page: parseInt(page, 10) }),
-  };
+//   // Configure pagination
+//   const pagination = {
+//     ...(limit && { limit: parseInt(limit, 10) }),
+//     ...(page && { page: parseInt(page, 10) }),
+//   };
 
-  try {
-    // Check if tenantId is provided
-    if (!tenantId) {
-      return NextResponse.json(
-        { error: "tenantId is required" },
-        { status: 400 }
-      );
-    }
+//   try {
+//     // Check if tenantId is provided
+//     if (!tenantId) {
+//       return NextResponse.json(
+//         { error: "tenantId is required" },
+//         { status: 400 }
+//       );
+//     }
 
-    // Configure filtering logic
-    const where = {
-      tenantId,
-      ...(userId && { userId }),
-    };
+//     // Configure filtering logic
+//     const where = {
+//       tenantId,
+//       ...(userId && { userId }),
+//     };
 
-    // Fetch data and meta with pagination
-    const [data, meta] = await prisma.userInfo
-      .paginate({
-        where,
-        select: {
-          userId: true,
-          tenantId: true,
-          birthDate: true,
-          address: true,
-          email: true,
-          phoneNumber: true,
-          birthPlace: true,
-          ssn: true,
-          nationality: true,
-          gender: true,
-          emergencyContact: true,
-          notes: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        orderBy: { createdAt: "desc" },
-      })
-      .withPages(pagination);
+//     // Fetch data and meta with pagination
+//     const [data, meta] = await prisma.userInfo
+//       .paginate({
+//         where,
+//         select: {
+//           userId: true,
+//           tenantId: true,
+//           birthDate: true,
+//           address: true,
+//           email: true,
+//           phoneNumber: true,
+//           birthPlace: true,
+//           ssn: true,
+//           nationality: true,
+//           gender: true,
+//           emergencyContact: true,
+//           notes: true,
+//           createdAt: true,
+//           updatedAt: true,
+//         },
+//         orderBy: { createdAt: "desc" },
+//       })
+//       .withPages(pagination);
 
-    // Return the paginated data
-    return NextResponse.json({ data, meta }, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching user info:", error);
-    return NextResponse.json(
-      { error, message: messages.request.failed },
-      { status: 500 }
-    );
-  }
-}
+//     // Return the paginated data
+//     return NextResponse.json({ data, meta }, { status: 200 });
+//   } catch (error) {
+//     console.error("Error fetching user info:", error);
+//     return NextResponse.json(
+//       { error, message: messages.request.failed },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+
 const messages = {
 	success: 'Successfully added!',
 	updated: 'Successfully updated!',
@@ -11,6 +13,8 @@ const messages = {
 	request: {
 		failed: 'Failed to get the data',
 		invalid: 'Invalid request',
+		notFound: 'Data not found',
+		deleted: 'Data deleted successfully',
 	},
 	account: {
 		doesntexist: 'No such account, Sign up instead.',
