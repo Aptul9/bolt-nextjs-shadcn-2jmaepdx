@@ -8,37 +8,44 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum SubscriptionType {
+enum UserSubscriptionType {
   Slots
   Unlimited
   H24
 }
 
+enum TenantSubscriptionType {
+  Standard
+  Premium
+}
+
 model Tenant {
-  id               String           @id @default(uuid()) @db.Uuid
-  subscriptionType SubscriptionType
+  id               String                 @id @default(uuid()) @db.Uuid
   expiresAt        DateTime
   ownerId          String
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  subscriptionType TenantSubscriptionType
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
 
   // Relations
   users      User[]
   usersInfo  UserInfo[]
   accessLogs AccessLog[]
+  TenantInfo TenantInfo[]
 
   @@map("tenants")
 }
 
 model User {
-  id             String   @id @default(uuid()) @db.Uuid
-  tenantId       String   @db.Uuid
-  expiresAt      DateTime
-  name           String
-  remainingSlots Int? // Changed from access_left for clarity
-  status         Boolean  @default(true) // Active/Inactive status
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String               @id @default(uuid()) @db.Uuid
+  tenantId         String               @db.Uuid
+  expiresAt        DateTime
+  subscriptionType UserSubscriptionType
+  name             String
+  remainingSlots   Int? // Changed from access_left for clarity
+  status           Boolean              @default(true) // Active/Inactive status
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
 
   // Relations
   tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -85,4 +92,20 @@ model AccessLog {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("access_logs")
+}
+
+model TenantInfo {
+  id          String   @id @db.Uuid
+  address     String?  @db.Text
+  vatNumber   String?  @db.VarChar(100)
+  documents   String?  @db.Text
+  phoneNumber String?  @db.VarChar(50)
+  website     String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant Tenant @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("tenant_info")
 }
