@@ -4,6 +4,70 @@ import { logAccess } from "@/lib/api/access-logger";
 import messages from "@/constants/messages";
 import prisma from "@/lib/api/prisma";
 
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+
+  // Extract query parameters
+  const tenantId = searchParams.get("tenantId");
+  const limit = searchParams.get("limit");
+  const page = searchParams.get("page");
+
+  // Configure pagination
+  const pagination = {
+    ...(limit && { limit: parseInt(limit, 10) }),
+    ...(page && { page: parseInt(page, 10) }),
+  };
+
+  try {
+    // Check if tenantId is provided
+    if (!tenantId) {
+      return NextResponse.json(
+        { error: "tenantId is required" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch access logs data and meta with pagination
+    const [data, meta] = await prisma.accessLog
+      .paginate({
+        where: {
+          tenantId: tenantId,
+        },
+        select: {
+          id: true,
+          timestamp: true,
+          door: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              subscriptionType: true,
+              status: true,
+              userInfo: {
+                select: {
+                  email: true,
+                  phoneNumber: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { timestamp: "desc" }, // Most recent logs first
+      })
+      .withPages(pagination);
+
+    // Return the paginated data
+    return NextResponse.json({ data, meta }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching access logs:", error);
+    return NextResponse.json(
+      { error, message: messages.request.failed },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
