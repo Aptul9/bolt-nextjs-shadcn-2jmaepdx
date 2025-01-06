@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import prisma from "@/lib/api/prisma";
+// import prisma from "@/lib/api/prisma";
 import messages from "@/constants/messages";
 
 // export async function GET(request: NextRequest) {
@@ -67,74 +67,74 @@ import messages from "@/constants/messages";
 //   }
 // }
 
-export async function POST(request: NextRequest) {
-  try {
-    // Log the request body to check if it's empty
-    const rawBody = await request.text();
-    console.log("Raw request body:", rawBody);
+// export async function POST(request: NextRequest) {
+//   try {
+//     // Log the request body to check if it's empty
+//     const rawBody = await request.text();
+//     console.log("Raw request body:", rawBody);
 
-    // Check if the request body is empty
-    if (!rawBody) {
-      return NextResponse.json(
-        { error: "Request body is empty" },
-        { status: 400 }
-      );
-    }
+//     // Check if the request body is empty
+//     if (!rawBody) {
+//       return NextResponse.json(
+//         { error: "Request body is empty" },
+//         { status: 400 }
+//       );
+//     }
 
-    // Parse the body if it is not empty
-    const body = JSON.parse(rawBody);
+//     // Parse the body if it is not empty
+//     const body = JSON.parse(rawBody);
 
-    // Extract parameters from the body
-    const {
-      userId,
-      tenantId,
-      birthDate,
-      address,
-      email,
-      phoneNumber,
-      birthPlace,
-      ssn,
-      nationality,
-      gender,
-      emergencyContact,
-      notes,
-    } = body;
+//     // Extract parameters from the body
+//     const {
+//       userId,
+//       tenantId,
+//       birthDate,
+//       address,
+//       email,
+//       phoneNumber,
+//       birthPlace,
+//       ssn,
+//       nationality,
+//       gender,
+//       emergencyContact,
+//       notes,
+//     } = body;
 
-    // Validate the required fields
-    if (!userId || !tenantId) {
-      return NextResponse.json(
-        {
-          error: "Missing required fields: userId, tenantId",
-        },
-        { status: 400 }
-      );
-    }
+//     // Validate the required fields
+//     if (!userId || !tenantId) {
+//       return NextResponse.json(
+//         {
+//           error: "Missing required fields: userId, tenantId",
+//         },
+//         { status: 400 }
+//       );
+//     }
 
-    // Create a new user info in the database
-    const newUserInfo = await prisma.userInfo.create({
-      data: {
-        userId,
-        tenantId,
-        birthDate: birthDate ? new Date(birthDate) : null,
-        address,
-        email,
-        phoneNumber,
-        birthPlace,
-        ssn,
-        nationality,
-        gender,
-        emergencyContact,
-        notes,
-      },
-    });
+//     // Create a new user info in the database
+//     const newUserInfo = await prisma.userInfo.create({
+//       data: {
+//         userId,
+//         tenantId,
+//         birthDate: birthDate ? new Date(birthDate) : null,
+//         address,
+//         email,
+//         phoneNumber,
+//         birthPlace,
+//         ssn,
+//         nationality,
+//         gender,
+//         emergencyContact,
+//         notes,
+//       },
+//     });
 
-    // Return the created user info
-    return NextResponse.json({ data: newUserInfo }, { status: 201 });
-  } catch (error) {
-    console.error("Error creating user info:", error);
-    return NextResponse.json(
-      { error, message: messages.request.failed },
-      { status: 500 }
-    );
-  }
-}
+//     // Return the created user info
+//     return NextResponse.json({ data: newUserInfo }, { status: 201 });
+//   } catch (error) {
+//     console.error("Error creating user info:", error);
+//     return NextResponse.json(
+//       { error, message: messages.request.failed },
+//       { status: 500 }
+//     );
+//   }
+// }

@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import prisma from "@/lib/api/prisma";
+// import prisma from "@/lib/api/prisma";
 import messages from "@/constants/messages";
 
 
@@ -33,74 +33,75 @@ export async function GET() {
     }
   });
 }
-export async function POST(request: NextRequest) {
-  try {
-    // Log the request body to check if it's empty
-    const rawBody = await request.text();
-    console.log("Raw request body:", rawBody);
 
-    // Check if the request body is empty
-    if (!rawBody) {
-      return NextResponse.json(
-        { error: "Request body is empty" },
-        { status: 400 }
-      );
-    }
+// export async function POST(request: NextRequest) {
+//   try {
+//     // Log the request body to check if it's empty
+//     const rawBody = await request.text();
+//     console.log("Raw request body:", rawBody);
 
-    // Parse the body if it is not empty
-    const body = JSON.parse(rawBody);
+//     // Check if the request body is empty
+//     if (!rawBody) {
+//       return NextResponse.json(
+//         { error: "Request body is empty" },
+//         { status: 400 }
+//       );
+//     }
 
-    // Extract parameters from the body
-    const {
-      name,
-      tenantId,
-      subscriptionType,
-      expiresAt,
-      remainingSlots,
-      status,
-      userInfo,
-    } = body;
+//     // Parse the body if it is not empty
+//     const body = JSON.parse(rawBody);
 
-    // Validate the required fields
-    if (!name || !tenantId || !subscriptionType || !expiresAt) {
-      return NextResponse.json(
-        {
-          error: "Missing required fields: name, tenantId, subscriptionType, expiresAt",
-        },
-        { status: 400 }
-      );
-    }
+//     // Extract parameters from the body
+//     const {
+//       name,
+//       tenantId,
+//       subscriptionType,
+//       expiresAt,
+//       remainingSlots,
+//       status,
+//       userInfo,
+//     } = body;
 
-    // Create a new user in the database with optional userInfo
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        tenantId,
-        subscriptionType,
-        expiresAt: new Date(expiresAt),
-        remainingSlots: remainingSlots ?? null,
-        status: status ?? true, // Default to true if not provided
-        ...(userInfo && {
-          userInfo: {
-            create: {
-              ...userInfo,
-              tenantId, // Make sure to include tenantId in userInfo
-            },
-          },
-        }),
-      },
-      include: {
-        userInfo: true, // Include the created userInfo in the response
-      },
-    });
+//     // Validate the required fields
+//     if (!name || !tenantId || !subscriptionType || !expiresAt) {
+//       return NextResponse.json(
+//         {
+//           error: "Missing required fields: name, tenantId, subscriptionType, expiresAt",
+//         },
+//         { status: 400 }
+//       );
+//     }
 
-    // Return the created user
-    return NextResponse.json({ data: newUser }, { status: 201 });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return NextResponse.json(
-      { error, message: messages.request.failed },
-      { status: 500 }
-    );
-  }
-}
+//     // Create a new user in the database with optional userInfo
+//     const newUser = await prisma.user.create({
+//       data: {
+//         name,
+//         tenantId,
+//         subscriptionType,
+//         expiresAt: new Date(expiresAt),
+//         remainingSlots: remainingSlots ?? null,
+//         status: status ?? true, // Default to true if not provided
+//         ...(userInfo && {
+//           userInfo: {
+//             create: {
+//               ...userInfo,
+//               tenantId, // Make sure to include tenantId in userInfo
+//             },
+//           },
+//         }),
+//       },
+//       include: {
+//         userInfo: true, // Include the created userInfo in the response
+//       },
+//     });
+
+//     // Return the created user
+//     return NextResponse.json({ data: newUser }, { status: 201 });
+//   } catch (error) {
+//     console.error("Error creating user:", error);
+//     return NextResponse.json(
+//       { error, message: messages.request.failed },
+//       { status: 500 }
+//     );
+//   }
+// }
