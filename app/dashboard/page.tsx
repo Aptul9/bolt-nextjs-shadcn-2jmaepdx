@@ -1,9 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Overview } from "@/components/dashboard/overview";
 
 export default function DashboardPage() {
+  const [activeUsers, setActiveUsers] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/supabase/users/count?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080")
+      .then((res) => res.json())
+      .then((data) => setActiveUsers(data.count));
+  }, []);
+
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">Dashboard Overview</h1>
@@ -22,7 +31,7 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">{activeUsers}</div>
           </CardContent>
         </Card>
         <Card>
