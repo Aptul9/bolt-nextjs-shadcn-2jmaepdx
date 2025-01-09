@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
@@ -31,6 +31,12 @@ interface User {
   userInfo: UserInfo;
 }
 
+interface AccessLog {
+  id: string;
+  timestamp: string;
+  door: number;
+}
+
 interface UserDialogProps {
   user: User | null;
   isOpen: boolean;
@@ -42,6 +48,35 @@ export function UserDialog({ user, isOpen, onClose, onUserUpdate }: UserDialogPr
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState<User | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false);
+
+  useEffect(() => {
+    if (user && isOpen) {
+      fetchAccessLogs();
+    }
+  }, [user, isOpen]);
+
+  const fetchAccessLogs = async () => {
+    if (!user) return;
+    
+    setIsLoadingLogs(true);
+    try {
+      const response = await fetch(`/api/supabase/access-logs/${user.id}`, {
+        headers: {
+          'tenant-id': 'de51a5d5-0648-484c-9a29-88b39c2b0080'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch access logs');
+      const data = await response.json();
+      setAccessLogs(data);
+    } catch (error) {
+      console.error('Error fetching access logs:', error);
+      toast.error("Failed to load access logs");
+    } finally {
+      setIsLoadingLogs(false);
+    }
+  };
 
   if (!user) return null;
 
@@ -152,6 +187,27 @@ export function UserDialog({ user, isOpen, onClose, onUserUpdate }: UserDialogPr
                 </>
               )}
             </div>
+          </div>
+
+          <div className="col-span-2">
+            <h3 className="font-semibold mb-2">Recent Access Logs</h3>
+            {isLoadingLogs ? (
+              <div className="text-muted-foreground">Loading access logs...</div>
+            ) : accessLogs.length > 0 ? (
+              <ul className="space-y-2">
+                {accessLogs.map((log) => (
+                  <li key={log.id} className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">
+                      {format(new Date(log.timestamp), 'PPP HH:mm')}
+                    </span>
+                    <span>•</span>
+                    <span>Door {log.door}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-muted-foreground">No recent access logs found</div>
+            )}
           </div>
 
           <div className="col-span-2">

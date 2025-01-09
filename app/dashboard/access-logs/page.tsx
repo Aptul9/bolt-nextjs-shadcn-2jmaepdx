@@ -63,56 +63,55 @@ export default function AccessLogsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Access Logs</h1>
-        <div className="flex gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "justify-start text-left font-normal w-[300px]",
-                  !date && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date?.from ? (
-                  date.to ? (
-                    <>
-                      {format(date.from, "LLL dd, y")} -{" "}
-                      {format(date.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(date.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={date?.from}
-                selected={date}
-                onSelect={setDate}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
+      <h1 className="text-3xl font-bold">Access Logs</h1>
 
-          {date && (
+      <div className="flex gap-2 items-center">
+        <Popover>
+          <PopoverTrigger asChild>
             <Button
-              variant="ghost"
-              onClick={() => setDate(undefined)}
-              className="text-muted-foreground"
+              variant="outline"
+              className={cn(
+                "justify-start text-left font-normal w-[300px]",
+                !date && "text-muted-foreground"
+              )}
             >
-              <X className="h-4 w-4 mr-2" />
-              Reset
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    {format(date.from, "LLL dd, y")} -{" "}
+                    {format(date.to, "LLL dd, y")}
+                  </>
+                ) : (
+                  format(date.from, "LLL dd, y")
+                )
+              ) : (
+                <span>Pick a date range</span>
+              )}
             </Button>
-          )}
-        </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={setDate}
+              numberOfMonths={2}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {date && (
+          <Button
+            variant="ghost"
+            onClick={() => setDate(undefined)}
+            className="text-muted-foreground"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
+        )}
       </div>
 
       <div className="rounded-md border">
@@ -122,7 +121,6 @@ export default function AccessLogsPage() {
               <TableHead>Date</TableHead>
               <TableHead>Time</TableHead>
               <TableHead>User</TableHead>
-              <TableHead>Email</TableHead>
               <TableHead>Door</TableHead>
             </TableRow>
           </TableHeader>
@@ -158,7 +156,6 @@ export default function AccessLogsPage() {
                     <TableCell className="font-medium">
                       {log.user.name}
                     </TableCell>
-                    <TableCell>{log.user.userInfo.email}</TableCell>
                     <TableCell>Door {log.door}</TableCell>
                   </TableRow>
                 ))}
