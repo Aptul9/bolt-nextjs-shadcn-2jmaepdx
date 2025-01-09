@@ -12,7 +12,16 @@ import {
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
+
 interface AccessLog {
   id: string;
   timestamp: string;
@@ -54,7 +63,57 @@ export default function AccessLogsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Access Logs</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Access Logs</h1>
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal w-[300px]",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date?.from ? (
+                  date.to ? (
+                    <>
+                      {format(date.from, "LLL dd, y")} -{" "}
+                      {format(date.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(date.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={date?.from}
+                selected={date}
+                onSelect={setDate}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
+
+          {date && (
+            <Button
+              variant="ghost"
+              onClick={() => setDate(undefined)}
+              className="text-muted-foreground"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Reset
+            </Button>
+          )}
+        </div>
+      </div>
 
       <div className="rounded-md border">
         <Table>

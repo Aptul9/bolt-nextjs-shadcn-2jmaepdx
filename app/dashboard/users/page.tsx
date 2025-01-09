@@ -15,6 +15,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
 
 interface UserInfo {
@@ -32,21 +39,35 @@ interface User {
   userInfo: UserInfo;
 }
 
+interface Filters {
+  status?: boolean;
+  expiringOnly?: boolean;
+}
+
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<Filters>({});
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   const fetchUsers = async (search?: string) => {
     setIsLoading(true);
     try {
       const baseUrl = "/api/supabase/users";
-      const url = search 
+      let url = search 
         ? `${baseUrl}/search?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080&q=${search}`
         : `${baseUrl}?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080`;
+      
+      // Add filters to URL
+      if (filters.status !== undefined) {
+        url += `&status=${filters.status}`;
+      }
+      if (filters.expiringOnly) {
+        url += '&expiringOnly=true';
+      }
       
       const res = await fetch(url);
       const data = await res.json();
@@ -60,11 +81,22 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers(debouncedSearch);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, filters]);
 
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
     setIsDialogOpen(true);
+  };
+
+  const handleStatusChange = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      status: value === "all" ? undefined : value === "active"
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({});
   };
 
   return (
@@ -90,6 +122,39 @@ export default function UsersPage() {
             </Button>
           )}
         </div>
+      </div>
+
+      <div className="flex gap-2 items-center">
+        <Select
+          value={filters.status === undefined ? "all" : filters.status ? "active" : "inactive"}
+          onValueChange={handleStatusChange}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Users</SelectItem>
+            <SelectItem value="active">Active Only</SelectItem>
+            <SelectItem value="inactive">Inactive Only</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Button
+          variant={filters.expiringOnly ? "secondary" : "outline"}
+          onClick={() => setFilters(prev => ({ ...prev, expiringOnly: !prev.expiringOnly }))}
+        >
+          Expiring Soon
+        </Button>
+        
+        {(filters.status !== undefined || filters.expiringOnly) && (
+          <Button
+            variant="ghost"
+            onClick={resetFilters}
+            className="text-muted-foreground"
+          >
+            Reset Filters
+          </Button>
+        )}
       </div>
 
       <div className="rounded-md border">

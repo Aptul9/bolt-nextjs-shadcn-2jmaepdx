@@ -1,10 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/utils/supabase";
 import messages from "@/constants/messages";
+import { addDays } from "date-fns";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const tenantId = searchParams.get("tenantId");
+  const status = searchParams.get("status");
+  const expiringOnly = searchParams.get("expiringOnly");
   const page = parseInt(searchParams.get("page") || "1");
   const perPage = 10;
 
@@ -22,8 +25,8 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .eq('tenantId', tenantId);
 
-    // Get paginated data
-    const { data, error } = await supabase
+    // Start building the query
+    let query = supabase
       .from('users')
       .select(`
         id,
@@ -40,7 +43,22 @@ export async function GET(request: NextRequest) {
           phoneNumber
         )
       `)
-      .eq('tenantId', tenantId)
+      .eq('tenantId', tenantId);
+
+    // Add status filter if provided
+    if (status !== null) {
+      query = query.eq('status', status === 'true');
+    }
+
+    // Add expiring soon filter if enabled
+    if (expiringOnly === 'true') {
+      const oneWeekFromNow = addDays(new Date(), 7);
+      query = query.lte('expiresAt', oneWeekFromNow.toISOString());
+      query = query.gte('expiresAt', new Date().toISOString());
+    }
+
+    // Add pagination and ordering
+    const { data, error } = await query
       .range((page - 1) * perPage, page * perPage - 1)
       .order('createdAt', { ascending: true });
 
