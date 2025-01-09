@@ -24,9 +24,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const query = supabase
-      .from('users')
-      .select(`
+    // Filter primary users table by name
+    const {
+      data: userData,
+      error: userError,
+      count,
+    } = await supabase
+      .from("users")
+      .select(
+        `
         id,
         name,
         status,
@@ -35,15 +41,15 @@ export async function GET(request: NextRequest) {
           email,
           phoneNumber
         )
-      `)
-      .eq('tenantId', tenantId)
-      .or(`name.ilike.%${searchText}%,users_info.email.ilike.%${searchText}%,users_info.phoneNumber.ilike.%${searchText}%`)
+      `,
+        { count: "exact" }
+      )
+      .eq("tenantId", tenantId)
+      .ilike("name", `%${searchText}%`)
       .range((page - 1) * perPage, page * perPage - 1)
-      .order('name');
+      .order("name");
 
-    const { data, error, count } = await query;
-
-    if (error) throw error;
+    if (userError) throw userError;
 
     const totalPages = Math.ceil((count || 0) / perPage);
 
@@ -54,14 +60,14 @@ export async function GET(request: NextRequest) {
       previousPage: page > 1 ? page - 1 : null,
       nextPage: page < totalPages ? page + 1 : null,
       pageCount: totalPages,
-      totalCount: count
+      totalCount: count,
     };
 
-    return NextResponse.json({ data, meta }, { status: 200 });
+    return NextResponse.json({ data: userData, meta }, { status: 200 });
   } catch (error) {
     console.error("Error searching users:", error);
     return NextResponse.json(
-      { error, message: messages.request.failed },
+      { error: error, message: messages.request.failed },
       { status: 500 }
     );
   }

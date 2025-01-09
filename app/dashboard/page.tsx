@@ -3,14 +3,23 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Overview } from "@/components/dashboard/overview";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
-  const [activeUsers, setActiveUsers] = useState(0);
+  const [activeUsers, setActiveUsers] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/supabase/users/count?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080")
       .then((res) => res.json())
-      .then((data) => setActiveUsers(data.count));
+      .then((data) => {
+        setActiveUsers(data.count);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching active users:", error);
+        setIsLoading(false);
+      });
   }, []);
 
   return (
@@ -31,7 +40,11 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeUsers}</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{activeUsers}</div>
+            )}
           </CardContent>
         </Card>
         <Card>
