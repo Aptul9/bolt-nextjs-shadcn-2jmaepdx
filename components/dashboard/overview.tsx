@@ -80,6 +80,7 @@ export function Overview() {
           dataKey="total"
           onMouseEnter={(data) => setHoveredBar(data.name)}
           onMouseLeave={() => setHoveredBar(null)}
+          radius={[8, 8, 0, 0]} 
         >
           {data.map((entry, index) => (
             <Cell

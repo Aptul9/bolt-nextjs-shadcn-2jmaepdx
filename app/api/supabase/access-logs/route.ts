@@ -9,13 +9,15 @@ export async function GET(request: NextRequest) {
   const userId = searchParams.get("userId");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
+  const countOnly = searchParams.get("countOnly") === "true";
   const page = parseInt(searchParams.get("page") || "1");
   const perPage = 10;
 
   try {
     let query = supabase
       .from('access_logs')
-      .select(`
+      .select(
+        countOnly ? 'id' : `
         id,
         timestamp,
         door,
@@ -43,6 +45,14 @@ export async function GET(request: NextRequest) {
       query = query.lte('timestamp', endDate);
     }
 
+    // If countOnly, we just need the count
+    if (countOnly) {
+      const { count, error } = await query;
+      if (error) throw error;
+      return NextResponse.json({ count }, { status: 200 });
+    }
+
+    // Otherwise, get paginated data
     const { data, error, count } = await query
       .range((page - 1) * perPage, page * perPage - 1)
       .order('timestamp', { ascending: false });

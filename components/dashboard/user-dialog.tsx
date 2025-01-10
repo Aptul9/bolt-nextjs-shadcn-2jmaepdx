@@ -22,6 +22,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface UserInfo {
   email: string;
@@ -109,7 +124,26 @@ export function UserDialog({
 
     setIsSaving(true);
     try {
-      const response = await fetch(`/api/supabase/user-info/${editedUser.id}`, {
+      // Update user data
+      const userResponse = await fetch(`/api/supabase/users/${editedUser.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "tenant-id": "de51a5d5-0648-484c-9a29-88b39c2b0080",
+        },
+        body: JSON.stringify({
+          name: editedUser.name,
+          subscriptionType: editedUser.subscriptionType,
+          status: editedUser.status,
+          expiresAt: editedUser.expiresAt,
+          remainingSlots: editedUser.remainingSlots,
+        }),
+      });
+
+      if (!userResponse.ok) throw new Error("Failed to update user");
+
+      // Update user info
+      const userInfoResponse = await fetch(`/api/supabase/user-info/${editedUser.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -118,10 +152,9 @@ export function UserDialog({
         body: JSON.stringify(editedUser.userInfo),
       });
 
-      if (!response.ok) throw new Error("Failed to update user");
+      if (!userInfoResponse.ok) throw new Error("Failed to update user info");
 
-      const updatedUser = { ...user, ...editedUser };
-      onUserUpdate(updatedUser);
+      onUserUpdate(editedUser);
       setIsEditing(false);
       toast.success("User information updated successfully");
     } catch (error) {
@@ -166,26 +199,144 @@ export function UserDialog({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold mb-2">Subscription Details</h3>
-              <div className="space-y-2">
-                <p>
-                  <span className="text-muted-foreground">Type:</span>{" "}
-                  {user.subscriptionType}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">Status:</span>{" "}
-                  {user.status ? "Active" : "Inactive"}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">Expires:</span>{" "}
-                  {format(new Date(user.expiresAt), "PPP")}
-                </p>
-                {user.remainingSlots !== undefined && (
-                  <p>
-                    <span className="text-muted-foreground">
-                      Remaining Slots:
-                    </span>{" "}
-                    {user.remainingSlots}
-                  </p>
+              <div className="space-y-4">
+                {isEditing ? (
+                  <>
+                    <div>
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        value={editedUser?.name || ""}
+                        onChange={(e) =>
+                          setEditedUser((prev) =>
+                            prev ? { ...prev, name: e.target.value } : null
+                          )
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="subscriptionType">Subscription Type</Label>
+                      <Select
+                        value={editedUser?.subscriptionType}
+                        onValueChange={(value) =>
+                          setEditedUser((prev) =>
+                            prev ? { ...prev, subscriptionType: value } : null
+                          )
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subscription type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Slots">Slots</SelectItem>
+                          <SelectItem value="Unlimited">Unlimited</SelectItem>
+                          <SelectItem value="H24">24/7</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="status">Status</Label>
+                      <Select
+                        value={editedUser?.status ? "active" : "inactive"}
+                        onValueChange={(value) =>
+                          setEditedUser((prev) =>
+                            prev
+                              ? { ...prev, status: value === "active" }
+                              : null
+                          )
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Expiration Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !editedUser?.expiresAt && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {editedUser?.expiresAt ? (
+                              format(new Date(editedUser.expiresAt), "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={new Date(editedUser?.expiresAt || "")}
+                            onSelect={(date) =>
+                              setEditedUser((prev) =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      expiresAt: date?.toISOString() || prev.expiresAt,
+                                    }
+                                  : null
+                              )
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    {editedUser?.subscriptionType === "Slots" && (
+                      <div>
+                        <Label htmlFor="remainingSlots">Remaining Slots</Label>
+                        <Input
+                          id="remainingSlots"
+                          type="number"
+                          value={editedUser?.remainingSlots || 0}
+                          onChange={(e) =>
+                            setEditedUser((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    remainingSlots: parseInt(e.target.value),
+                                  }
+                                : null
+                            )
+                          }
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      <span className="text-muted-foreground">Type:</span>{" "}
+                      {user.subscriptionType}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Status:</span>{" "}
+                      {user.status ? "Active" : "Inactive"}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Expires:</span>{" "}
+                      {format(new Date(user.expiresAt), "PPP")}
+                    </p>
+                    {user.remainingSlots !== undefined && (
+                      <p>
+                        <span className="text-muted-foreground">
+                          Remaining Slots:
+                        </span>{" "}
+                        {user.remainingSlots}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -235,6 +386,67 @@ export function UserDialog({
                         }
                       />
                     </div>
+                    <div>
+                      <Label htmlFor="address">Address</Label>
+                      <Input
+                        id="address"
+                        value={editedUser?.userInfo.address || ""}
+                        onChange={(e) =>
+                          setEditedUser((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  userInfo: {
+                                    ...prev.userInfo,
+                                    address: e.target.value,
+                                  },
+                                }
+                              : null
+                          )
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Birth Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !editedUser?.userInfo.birthDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {editedUser?.userInfo.birthDate ? (
+                              format(new Date(editedUser.userInfo.birthDate), "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={editedUser?.userInfo.birthDate ? new Date(editedUser.userInfo.birthDate) : undefined}
+                            onSelect={(date) =>
+                              setEditedUser((prev) =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      userInfo: {
+                                        ...prev.userInfo,
+                                        birthDate: date?.toISOString(),
+                                      },
+                                    }
+                                  : null
+                              )
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -246,79 +458,173 @@ export function UserDialog({
                       <span className="text-muted-foreground">Phone:</span>{" "}
                       {user.userInfo.phoneNumber}
                     </p>
+                    {user.userInfo.address && (
+                      <p>
+                        <span className="text-muted-foreground">Address:</span>{" "}
+                        {user.userInfo.address}
+                      </p>
+                    )}
+                    {user.userInfo.birthDate && (
+                      <p>
+                        <span className="text-muted-foreground">Birth Date:</span>{" "}
+                        {format(new Date(user.userInfo.birthDate), "PPP")}
+                      </p>
+                    )}
                   </>
                 )}
               </div>
             </div>
 
-            {(isEditing || user.userInfo.address || user.userInfo.notes) && (
-              <div className="col-span-2">
-                <h3 className="font-semibold mb-2">Additional Information</h3>
-                <div className="space-y-4">
-                  {isEditing ? (
-                    <>
-                      <div>
-                        <Label htmlFor="address">Address</Label>
-                        <Input
-                          id="address"
-                          value={editedUser?.userInfo.address || ""}
-                          onChange={(e) =>
-                            setEditedUser((prev) =>
-                              prev
-                                ? {
-                                    ...prev,
-                                    userInfo: {
-                                      ...prev.userInfo,
-                                      address: e.target.value,
-                                    },
-                                  }
-                                : null
-                            )
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="notes">Notes</Label>
-                        <Textarea
-                          id="notes"
-                          value={editedUser?.userInfo.notes || ""}
-                          onChange={(e) =>
-                            setEditedUser((prev) =>
-                              prev
-                                ? {
-                                    ...prev,
-                                    userInfo: {
-                                      ...prev.userInfo,
-                                      notes: e.target.value,
-                                    },
-                                  }
-                                : null
-                            )
-                          }
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {user.userInfo.address && (
-                        <p>
-                          <span className="text-muted-foreground">
-                            Address:
-                          </span>{" "}
-                          {user.userInfo.address}
-                        </p>
-                      )}
-                      {user.userInfo.notes && (
-                        <p>
-                          <span className="text-muted-foreground">Notes:</span>{" "}
-                          {user.userInfo.notes}
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
+            <div className="col-span-2">
+              <h3 className="font-semibold mb-2">Additional Information</h3>
+              <div className="space-y-4">
+                {isEditing ? (
+                  <>
+                    <div>
+                      <Label htmlFor="birthPlace">Birth Place</Label>
+                      <Input
+                        id="birthPlace"
+                        value={editedUser?.userInfo.birthPlace || ""}
+                        onChange={(e) =>
+                          setEditedUser((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  userInfo: {
+                                    ...prev.userInfo,
+                                    birthPlace: e.target.value,
+                                  },
+                                }
+                              : null
+                          )
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="nationality">Nationality</Label>
+                      <Input
+                        id="nationality"
+                        value={editedUser?.userInfo.nationality || ""}
+                        onChange={(e) =>
+                          setEditedUser((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  userInfo: {
+                                    ...prev.userInfo,
+                                    nationality: e.target.value,
+                                  },
+                                }
+                              : null
+                          )
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="gender">Gender</Label>
+                      <Select
+                        value={editedUser?.userInfo.gender}
+                        onValueChange={(value) =>
+                          setEditedUser((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  userInfo: {
+                                    ...prev.userInfo,
+                                    gender: value,
+                                  },
+                                }
+                              : null
+                          )
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="emergencyContact">Emergency Contact</Label>
+                      <Input
+                        id="emergencyContact"
+                        value={editedUser?.userInfo.emergencyContact || ""}
+                        onChange={(e) =>
+                          setEditedUser((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  userInfo: {
+                                    ...prev.userInfo,
+                                    emergencyContact: e.target.value,
+                                  },
+                                }
+                              : null
+                          )
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="notes">Notes</Label>
+                      <Textarea
+                        id="notes"
+                        value={editedUser?.userInfo.notes || ""}
+                        onChange={(e) =>
+                          setEditedUser((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  userInfo: {
+                                    ...prev.userInfo,
+                                    notes: e.target.value,
+                                  },
+                                }
+                              : null
+                          )
+                        }
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {user.userInfo.birthPlace && (
+                      <p>
+                        <span className="text-muted-foreground">Birth Place:</span>{" "}
+                        {user.userInfo.birthPlace}
+                      </p>
+                    )}
+                    {user.userInfo.nationality && (
+                      <p>
+                        <span className="text-muted-foreground">Nationality:</span>{" "}
+                        {user.userInfo.nationality}
+                      </p>
+                    )}
+                    {user.userInfo.gender && (
+                      <p>
+                        <span className="text-muted-foreground">Gender:</span>{" "}
+                        {user.userInfo.gender}
+                      </p>
+                    )}
+                    {user.userInfo.emergencyContact && (
+                      <p>
+                        <span className="text-muted-foreground">Emergency Contact:</span>{" "}
+                        {user.userInfo.emergencyContact}
+                      </p>
+                    )}
+                    {user.userInfo.notes && (
+                      <p>
+                        <span className="text-muted-foreground">Notes:</span>{" "}
+                        {user.userInfo.notes}
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
-            )}
+            </div>
 
             <div className="col-span-2">
               <h3 className="font-semibold mb-2">Recent Access Logs</h3>

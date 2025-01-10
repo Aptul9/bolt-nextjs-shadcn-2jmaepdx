@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { UserDialog } from "@/components/dashboard/user-dialog";
+import { NewUserDialog } from "@/components/dashboard/new-user-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
+import { Search, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -48,6 +49,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
@@ -124,37 +126,44 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="flex gap-2 items-center">
-        <Select
-          value={filters.status === undefined ? "all" : filters.status ? "active" : "inactive"}
-          onValueChange={handleStatusChange}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Users</SelectItem>
-            <SelectItem value="active">Active Only</SelectItem>
-            <SelectItem value="inactive">Inactive Only</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button
-          variant={filters.expiringOnly ? "secondary" : "outline"}
-          onClick={() => setFilters(prev => ({ ...prev, expiringOnly: !prev.expiringOnly }))}
-        >
-          Expiring Soon
-        </Button>
-        
-        {(filters.status !== undefined || filters.expiringOnly) && (
-          <Button
-            variant="ghost"
-            onClick={resetFilters}
-            className="text-muted-foreground"
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 items-center">
+          <Select
+            value={filters.status === undefined ? "all" : filters.status ? "active" : "inactive"}
+            onValueChange={handleStatusChange}
           >
-            Reset Filters
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Users</SelectItem>
+              <SelectItem value="active">Active Only</SelectItem>
+              <SelectItem value="inactive">Inactive Only</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant={filters.expiringOnly ? "secondary" : "outline"}
+            onClick={() => setFilters(prev => ({ ...prev, expiringOnly: !prev.expiringOnly }))}
+          >
+            Expiring Soon
           </Button>
-        )}
+          
+          {(filters.status !== undefined || filters.expiringOnly) && (
+            <Button
+              variant="ghost"
+              onClick={resetFilters}
+              className="text-muted-foreground"
+            >
+              Reset Filters
+            </Button>
+          )}
+        </div>
+
+        <Button onClick={() => setIsNewUserDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          New User
+        </Button>
       </div>
 
       <div className="rounded-md border">
@@ -209,6 +218,11 @@ export default function UsersPage() {
         onUserUpdate={(updatedUser) => {
           setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
         }}
+      />
+
+      <NewUserDialog
+        isOpen={isNewUserDialogOpen}
+        onClose={() => setIsNewUserDialogOpen(false)}
       />
     </div>
   );
