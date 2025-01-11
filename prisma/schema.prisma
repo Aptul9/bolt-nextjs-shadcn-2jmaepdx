@@ -31,6 +31,7 @@ model User {
   remainingSlots   Int?
   status           Boolean              @default(true)
   createdAt        DateTime             @default(now())
+  cardId           String?
   updatedAt        DateTime             @updatedAt
   subscriptionType UserSubscriptionType
   accessLogs       AccessLog[]
@@ -68,6 +69,7 @@ model AccessLog {
   userId    String   @db.Uuid
   door      Int?
   createdAt DateTime @default(now())
+  success   Boolean  @default(true)
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
