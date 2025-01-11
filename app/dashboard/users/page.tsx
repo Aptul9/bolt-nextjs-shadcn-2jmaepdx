@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { UserDialog } from "@/components/dashboard/user-dialog";
 import { NewUserDialog } from "@/components/dashboard/new-user-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -24,20 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
-
-interface UserInfo {
-  email: string;
-  phoneNumber: string;
-}
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
   name: string;
   subscriptionType: string;
   status: boolean;
-  expiresAt: string;
-  remainingSlots?: number;
-  userInfo: UserInfo;
 }
 
 interface Filters {
@@ -46,9 +38,8 @@ interface Filters {
 }
 
 export default function UsersPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,7 +54,6 @@ export default function UsersPage() {
         ? `${baseUrl}/search?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080&q=${search}`
         : `${baseUrl}?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080`;
       
-      // Add filters to URL
       if (filters.status !== undefined) {
         url += `&status=${filters.status}`;
       }
@@ -85,9 +75,8 @@ export default function UsersPage() {
     fetchUsers(debouncedSearch);
   }, [debouncedSearch, filters]);
 
-  const handleUserClick = (user: User) => {
-    setSelectedUser(user);
-    setIsDialogOpen(true);
+  const handleUserClick = (userId: string) => {
+    router.push(`/dashboard/users/${userId}`);
   };
 
   const handleStatusChange = (value: string) => {
@@ -171,8 +160,6 @@ export default function UsersPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
               <TableHead>Subscription</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -182,8 +169,6 @@ export default function UsersPage() {
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
                 </TableRow>
@@ -193,11 +178,9 @@ export default function UsersPage() {
                 <TableRow 
                   key={user.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleUserClick(user)}
+                  onClick={() => handleUserClick(user.id)}
                 >
                   <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.userInfo?.email}</TableCell>
-                  <TableCell>{user.userInfo?.phoneNumber}</TableCell>
                   <TableCell>{user.subscriptionType}</TableCell>
                   <TableCell>
                     <Badge variant={user.status ? "default" : "destructive"}>
@@ -210,15 +193,6 @@ export default function UsersPage() {
           </TableBody>
         </Table>
       </div>
-
-      <UserDialog 
-        user={selectedUser}
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onUserUpdate={(updatedUser) => {
-          setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-        }}
-      />
 
       <NewUserDialog
         isOpen={isNewUserDialogOpen}
