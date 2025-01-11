@@ -21,14 +21,10 @@ export async function GET(request: NextRequest) {
         id,
         timestamp,
         door,
+        success,
         createdAt,
         user:users (
-          id,
-          name,
-          subscriptionType,
-          userInfo:users_info (
-            email
-          )
+          name
         )
       `, { count: 'exact' })
       .eq('tenantId', tenantId);

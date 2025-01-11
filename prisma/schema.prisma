@@ -31,9 +31,9 @@ model User {
   remainingSlots   Int?
   status           Boolean              @default(true)
   createdAt        DateTime             @default(now())
-  cardId           String?
   updatedAt        DateTime             @updatedAt
   subscriptionType UserSubscriptionType
+  cardid           String?              @db.VarChar
   accessLogs       AccessLog[]
   tenant           Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   userInfo         UserInfo?

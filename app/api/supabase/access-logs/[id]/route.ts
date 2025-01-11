@@ -21,7 +21,8 @@ export async function GET(request: NextRequest, { params }: HandlerArgs) {
       .select(`
         id,
         timestamp,
-        door
+        door,
+        success
       `)
       .eq('userId', id)
       .eq('tenantId', tenant_id)

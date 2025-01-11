@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
 import {
   Popover,
   PopoverContent,
@@ -30,12 +31,9 @@ interface AccessLog {
   id: string;
   timestamp: string;
   door: number;
+  success: boolean;
   user: {
     name: string;
-    subscriptionType: string;
-    userInfo: {
-      email: string;
-    };
   };
 }
 
@@ -147,6 +145,7 @@ export default function AccessLogsPage() {
               <TableHead>Time</TableHead>
               <TableHead>User</TableHead>
               <TableHead>Door</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -165,6 +164,9 @@ export default function AccessLogsPage() {
                     <TableCell>
                       <Skeleton className="h-4 w-[60px]" />
                     </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[80px]" />
+                    </TableCell>
                   </TableRow>
                 ))
               : logs.map((log) => (
@@ -177,6 +179,11 @@ export default function AccessLogsPage() {
                     </TableCell>
                     <TableCell className="font-medium">{log.user.name}</TableCell>
                     <TableCell>Door {log.door}</TableCell>
+                    <TableCell>
+                      <Badge variant={log.success ? "default" : "destructive"}>
+                        {log.success ? "Success" : "Failed"}
+                      </Badge>
+                    </TableCell>
                   </TableRow>
                 ))}
           </TableBody>
