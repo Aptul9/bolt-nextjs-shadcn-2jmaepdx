@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -21,6 +21,10 @@ import {
 import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
+import { supabase } from "@/utils/supabase";
+import { toast } from "sonner";
+
+const TENANT_ID = "de51a5d5-0648-484c-9a29-88b39c2b0080";
 
 interface AccessLog {
   id: string;
@@ -40,26 +44,48 @@ export default function AccessLogsPage() {
   const [date, setDate] = useState<DateRange | undefined>();
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setIsLoading(true);
-    let url = `/api/supabase/access-logs?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080`;
-    if (date?.from) url += `&startDate=${date.from.toISOString()}`;
-    if (date?.to) url += `&endDate=${date.to.toISOString()}`;
+    let url = `/api/supabase/access-logs?tenantId=${TENANT_ID}`;
+
+    if (date?.from) {
+      url += `&startDate=${date.from.toISOString()}`;
+    }
+    if (date?.to) {
+      url += `&endDate=${date.to.toISOString()}`;
+    }
 
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to fetch logs");
       const data = await res.json();
       setLogs(data.data);
     } catch (error) {
       console.error("Error fetching logs:", error);
+      toast.error("Failed to fetch access logs");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [date]);
+
+  const handleRealtimeUpdate = useCallback(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   useEffect(() => {
     fetchLogs();
-  }, [date]);
+
+    const channel = supabase
+      .channel("access_logs_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "access_logs" }, handleRealtimeUpdate)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel).catch((error) => {
+        console.error("Error cleaning up subscription:", error);
+      });
+    };
+  }, [fetchLogs, handleRealtimeUpdate]);
 
   return (
     <div className="space-y-8">
@@ -79,8 +105,7 @@ export default function AccessLogsPage() {
               {date?.from ? (
                 date.to ? (
                   <>
-                    {format(date.from, "LLL dd, y")} -{" "}
-                    {format(date.to, "LLL dd, y")}
+                    {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
                   </>
                 ) : (
                   format(date.from, "LLL dd, y")
@@ -138,9 +163,6 @@ export default function AccessLogsPage() {
                       <Skeleton className="h-4 w-[150px]" />
                     </TableCell>
                     <TableCell>
-                      <Skeleton className="h-4 w-[200px]" />
-                    </TableCell>
-                    <TableCell>
                       <Skeleton className="h-4 w-[60px]" />
                     </TableCell>
                   </TableRow>
@@ -153,9 +175,7 @@ export default function AccessLogsPage() {
                     <TableCell>
                       {format(new Date(log.timestamp), "HH:mm")}
                     </TableCell>
-                    <TableCell className="font-medium">
-                      {log.user.name}
-                    </TableCell>
+                    <TableCell className="font-medium">{log.user.name}</TableCell>
                     <TableCell>Door {log.door}</TableCell>
                   </TableRow>
                 ))}
