@@ -15,30 +15,35 @@ export async function GET(request: NextRequest) {
 
   try {
     let query = supabase
-      .from('access_logs')
+      .from("access_logs")
       .select(
-        countOnly ? 'id' : `
+        countOnly
+          ? "id"
+          : `
         id,
         timestamp,
         door,
         success,
         createdAt,
         user:users (
+          id,
           name
         )
-      `, { count: 'exact' })
-      .eq('tenantId', tenantId);
+      `,
+        { count: "exact" }
+      )
+      .eq("tenantId", tenantId);
 
     if (userId) {
-      query = query.eq('userId', userId);
+      query = query.eq("userId", userId);
     }
 
     if (startDate) {
-      query = query.gte('timestamp', startDate);
+      query = query.gte("timestamp", startDate);
     }
 
     if (endDate) {
-      query = query.lte('timestamp', endDate);
+      query = query.lte("timestamp", endDate);
     }
 
     // If countOnly, we just need the count
@@ -51,7 +56,7 @@ export async function GET(request: NextRequest) {
     // Otherwise, get paginated data
     const { data, error, count } = await query
       .range((page - 1) * perPage, page * perPage - 1)
-      .order('timestamp', { ascending: false });
+      .order("timestamp", { ascending: false });
 
     if (error) throw error;
 
@@ -64,7 +69,7 @@ export async function GET(request: NextRequest) {
       previousPage: page > 1 ? page - 1 : null,
       nextPage: page < totalPages ? page + 1 : null,
       pageCount: totalPages,
-      totalCount: count
+      totalCount: count,
     };
 
     return NextResponse.json({ data, meta }, { status: 200 });
