@@ -15,7 +15,7 @@ export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
         <Menu className="h-6 w-6" />
       </Button>
       <div className="absolute left-1/2 -translate-x-1/2">
-        <Logo />
+        <Logo href="/dashboard"/>
       </div>
     </header>
   );
