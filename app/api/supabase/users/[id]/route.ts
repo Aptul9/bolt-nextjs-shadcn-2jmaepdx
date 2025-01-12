@@ -59,3 +59,69 @@ export async function GET(request: NextRequest, { params }: HandlerArgs) {
     );
   }
 }
+
+export async function PUT(request: NextRequest, { params }: HandlerArgs) {
+  const { id } = params;
+  const tenant_id = request.headers.get('tenant-id');
+
+  if (!tenant_id) {
+    return NextResponse.json(
+      { message: 'Tenant ID is required' }, 
+      { status: 400 }
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const {
+      name,
+      subscriptionType,
+      status,
+      expiresAt,
+      remainingSlots
+    } = body;
+
+    const { data, error } = await supabase
+      .from('users')
+      .update({
+        name,
+        subscriptionType,
+        status,
+        expiresAt,
+        remainingSlots,
+        updatedAt: new Date().toISOString()
+      })
+      .eq('id', id)
+      .eq('tenantId', tenant_id)
+      .select(`
+        id,
+        name,
+        subscriptionType,
+        status,
+        expiresAt,
+        remainingSlots,
+        userInfo:users_info (
+          email,
+          phoneNumber,
+          address,
+          birthDate,
+          birthPlace,
+          nationality,
+          gender,
+          emergencyContact,
+          notes
+        )
+      `)
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return NextResponse.json(
+      { error, message: messages.request.failed }, 
+      { status: 500 }
+    );
+  }
+}

@@ -92,7 +92,7 @@ export default function AccessLogsPage() {
   }, [fetchLogs, handleRealtimeUpdate]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-md:mt-3.5">
       <h1 className="text-3xl font-bold">Access Logs</h1>
 
       <div className="flex gap-2 items-center">
@@ -151,8 +151,8 @@ export default function AccessLogsPage() {
               <TableHead>Date</TableHead>
               <TableHead>Time</TableHead>
               <TableHead>User</TableHead>
-              <TableHead>Door</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="hidden md:table-cell">Door</TableHead>
+              <TableHead className="hidden sm:table-cell">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -168,10 +168,10 @@ export default function AccessLogsPage() {
                     <TableCell>
                       <Skeleton className="h-4 w-[150px]" />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Skeleton className="h-4 w-[60px]" />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Skeleton className="h-4 w-[80px]" />
                     </TableCell>
                   </TableRow>
@@ -192,8 +192,10 @@ export default function AccessLogsPage() {
                         {log.user.name}
                       </Link>
                     </TableCell>
-                    <TableCell>Door {log.door}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      Door {log.door}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge variant={log.success ? "default" : "destructive"}>
                         {log.success ? "Success" : "Failed"}
                       </Badge>

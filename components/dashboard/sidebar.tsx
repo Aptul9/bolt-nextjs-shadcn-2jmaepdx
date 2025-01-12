@@ -3,16 +3,17 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronRight, Users, Key, LayoutDashboard, Settings, LogOut, Dumbbell } from "lucide-react";
+import { ChevronRight, Users, Key, LayoutDashboard, Settings, LogOut, Dumbbell, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 interface SidebarProps {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
+  onClose?: () => void;
 }
 
-export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
+export function Sidebar({ isCollapsed, setIsCollapsed, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   const routes = [
@@ -36,7 +37,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
   return (
     <div
       className={cn(
-        "relative flex flex-col border-r bg-background transition-all duration-300",
+        "relative flex flex-col border-r bg-background h-full transition-all duration-300",
         isCollapsed ? "w-[80px]" : "w-[240px]"
       )}
     >
@@ -50,10 +51,22 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             GymAccess
           </span>
         </div>
+        {/* Close button for mobile */}
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-3 lg:hidden"
+            onClick={onClose}
+          >
+            <X className="h-6 w-6" />
+          </Button>
+        )}
+        {/* Collapse button for desktop */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -right-3 h-6 w-6 rounded-full bg-background"
+          className="absolute -right-3 h-6 w-6 rounded-full bg-background hidden lg:flex"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <ChevronRight
@@ -65,7 +78,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
       <ScrollArea className="flex-1 pt-4">
         <div className="space-y-2 px-2">
           {routes.map((route) => (
-            <Link key={route.href} href={route.href}>
+            <Link key={route.href} href={route.href} onClick={onClose}>
               <Button
                 variant={pathname === route.href ? "secondary" : "ghost"}
                 className={cn(

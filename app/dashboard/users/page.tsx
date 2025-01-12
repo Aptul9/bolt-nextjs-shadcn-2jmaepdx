@@ -50,17 +50,17 @@ export default function UsersPage() {
     setIsLoading(true);
     try {
       const baseUrl = "/api/supabase/users";
-      let url = search 
+      let url = search
         ? `${baseUrl}/search?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080&q=${search}`
         : `${baseUrl}?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080`;
-      
+
       if (filters.status !== undefined) {
         url += `&status=${filters.status}`;
       }
       if (filters.expiringOnly) {
-        url += '&expiringOnly=true';
+        url += "&expiringOnly=true";
       }
-      
+
       const res = await fetch(url);
       const data = await res.json();
       setUsers(data.data || []);
@@ -80,9 +80,9 @@ export default function UsersPage() {
   };
 
   const handleStatusChange = (value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      status: value === "all" ? undefined : value === "active"
+      status: value === "all" ? undefined : value === "active",
     }));
   };
 
@@ -91,10 +91,19 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Users</h1>
-        <div className="relative w-72">
+    <div className="space-y-4 md:space-y-8 max-md:mt-3.5">
+      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center">
+      <div className="flex items-center justify-between">
+  <h1 className="text-3xl font-bold">Users</h1>
+  <Button
+    onClick={() => setIsNewUserDialogOpen(true)}
+    className="md:hidden flex items-center"
+  >
+    <Plus className="h-4 w-4 mr-2" />
+    New User
+  </Button>
+</div>
+        <div className="relative w-full md:w-72">
           <Input
             placeholder="Search users..."
             value={searchQuery}
@@ -115,13 +124,19 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2 items-center">
+      <div className="flex flex-wrap flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center">
+        <div className="flex flex-wrap gap-3 items-center">
           <Select
-            value={filters.status === undefined ? "all" : filters.status ? "active" : "inactive"}
+            value={
+              filters.status === undefined
+                ? "all"
+                : filters.status
+                ? "active"
+                : "inactive"
+            }
             onValueChange={handleStatusChange}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="max-md:w-[150px] md:w-[180px] w-full">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
@@ -132,12 +147,18 @@ export default function UsersPage() {
           </Select>
 
           <Button
+            className="ml-3.5"
             variant={filters.expiringOnly ? "secondary" : "outline"}
-            onClick={() => setFilters(prev => ({ ...prev, expiringOnly: !prev.expiringOnly }))}
+            onClick={() =>
+              setFilters((prev) => ({
+                ...prev,
+                expiringOnly: !prev.expiringOnly,
+              }))
+            }
           >
             Expiring Soon
           </Button>
-          
+
           {(filters.status !== undefined || filters.expiringOnly) && (
             <Button
               variant="ghost"
@@ -149,7 +170,10 @@ export default function UsersPage() {
           )}
         </div>
 
-        <Button onClick={() => setIsNewUserDialogOpen(true)}>
+        <Button
+          onClick={() => setIsNewUserDialogOpen(true)}
+          className="hidden md:flex"
+        >
           <Plus className="h-4 w-4 mr-2" />
           New User
         </Button>
@@ -165,31 +189,35 @@ export default function UsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                </TableRow>
-              ))
-            ) : (
-              users.map((user) => (
-                <TableRow 
-                  key={user.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleUserClick(user.id)}
-                >
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.subscriptionType}</TableCell>
-                  <TableCell>
-                    <Badge variant={user.status ? "default" : "destructive"}>
-                      {user.status ? "Active" : "Inactive"}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[200px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[100px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[80px]" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              : users.map((user) => (
+                  <TableRow
+                    key={user.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleUserClick(user.id)}
+                  >
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.subscriptionType}</TableCell>
+                    <TableCell>
+                      <Badge variant={user.status ? "default" : "destructive"}>
+                        {user.status ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </div>

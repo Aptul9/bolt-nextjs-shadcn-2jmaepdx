@@ -39,7 +39,7 @@ export function NewUserDialog({ isOpen, onClose }: NewUserDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[94vh] md:max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl">Add New User</DialogTitle>
         </DialogHeader>
