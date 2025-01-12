@@ -3,6 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface User {
   subscriptionType: string;
@@ -13,9 +21,102 @@ interface User {
 
 interface UserSubscriptionInfoProps {
   user: User;
+  isEditing: boolean;
+  editedUser: User | null;
+  onUserChange: (field: string, value: any) => void;
 }
 
-export function UserSubscriptionInfo({ user }: UserSubscriptionInfoProps) {
+export function UserSubscriptionInfo({ user, isEditing, editedUser, onUserChange }: UserSubscriptionInfoProps) {
+  if (isEditing) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Subscription Details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="subscriptionType">Subscription Type</Label>
+            <Select
+              value={editedUser?.subscriptionType}
+              onValueChange={(value) => onUserChange("subscriptionType", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select subscription type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Slots">Slots</SelectItem>
+                <SelectItem value="Unlimited">Unlimited</SelectItem>
+                <SelectItem value="H24">24/7</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={editedUser?.status ? "active" : "inactive"}
+              onValueChange={(value) => onUserChange("status", value === "active")}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Expiration Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !editedUser?.expiresAt && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {editedUser?.expiresAt ? (
+                    format(new Date(editedUser.expiresAt), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={new Date(editedUser?.expiresAt || "")}
+                  onSelect={(date) =>
+                    onUserChange("expiresAt", date?.toISOString())
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {editedUser?.subscriptionType === "Slots" && (
+            <div>
+              <Label htmlFor="remainingSlots">Remaining Slots</Label>
+              <Input
+                id="remainingSlots"
+                type="number"
+                value={editedUser?.remainingSlots || 0}
+                onChange={(e) =>
+                  onUserChange("remainingSlots", parseInt(e.target.value))
+                }
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
