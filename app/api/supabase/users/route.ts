@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/utils/supabase";
 import messages from "@/constants/messages";
 import { addDays } from "date-fns";
+import { v4 as uuidv4 } from 'uuid';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -79,6 +80,111 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data, meta }, { status: 200 });
   } catch (error) {
     console.error("Error fetching users:", error);
+    return NextResponse.json(
+      { error, message: messages.request.failed },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const tenant_id = request.headers.get('tenant-id');
+    if (!tenant_id) {
+      return NextResponse.json(
+        { message: 'Tenant ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const {
+      name,
+      subscriptionType,
+      status,
+      expiresAt,
+      remainingSlots,
+      userInfo
+    } = body;
+
+    // Validate required fields
+    if (!name || !subscriptionType || !expiresAt) {
+      return NextResponse.json(
+        { error: "Missing required fields: name, subscriptionType, expiresAt" },
+        { status: 400 }
+      );
+    }
+
+    // Generate a new UUID for the user
+    const userId = uuidv4();
+
+    // Start a transaction using supabase
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: userId, // Explicitly set the UUID
+          name,
+          tenantId: tenant_id,
+          subscriptionType,
+          status: status ?? true,
+          expiresAt: new Date(expiresAt).toISOString(), // Ensure proper date format
+          remainingSlots: subscriptionType === 'Slots' ? remainingSlots : null,
+          updatedAt: new Date().toISOString() // Explicitly set updatedAt
+        }
+      ])
+      .select()
+      .single();
+
+    if (userError) throw userError;
+
+    if (userInfo) {
+      const { error: userInfoError } = await supabase
+        .from('users_info')
+        .insert([
+          {
+            userId: userId, // Use the same UUID
+            tenantId: tenant_id,
+            ...userInfo,
+            updatedAt: new Date().toISOString() // Explicitly set updatedAt
+          }
+        ]);
+      if (userInfoError) throw userInfoError;
+    }
+
+    // Fetch the created user with their info
+    const { data: createdUser, error: fetchError } = await supabase
+      .from('users')
+      .select(`
+        id,
+        name,
+        tenantId,
+        subscriptionType,
+        expiresAt,
+        remainingSlots,
+        status,
+        createdAt,
+        updatedAt,
+        userInfo:users_info (
+          email,
+          phoneNumber,
+          address,
+          birthDate,
+          birthPlace,
+          nationality,
+          gender,
+          emergencyContact,
+          notes
+        )
+      `)
+      .eq('id', userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    return NextResponse.json({ data: createdUser }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating user:", error);
     return NextResponse.json(
       { error, message: messages.request.failed },
       { status: 500 }

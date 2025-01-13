@@ -11,8 +11,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface User {
+  name: string;
   subscriptionType: string;
   status: boolean;
   expiresAt: string;
@@ -27,6 +29,14 @@ interface UserSubscriptionInfoProps {
 }
 
 export function UserSubscriptionInfo({ user, isEditing, editedUser, onUserChange }: UserSubscriptionInfoProps) {
+  const handleNameChange = (value: string) => {
+    if (value.trim() === "") {
+      toast.error("Name cannot be empty");
+      return;
+    }
+    onUserChange("name", value);
+  };
+
   if (isEditing) {
     return (
       <Card>
@@ -35,10 +45,27 @@ export function UserSubscriptionInfo({ user, isEditing, editedUser, onUserChange
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
+            <Label htmlFor="name">
+              Name <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="name"
+              value={editedUser?.name || ""}
+              onChange={(e) => handleNameChange(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
             <Label htmlFor="subscriptionType">Subscription Type</Label>
             <Select
               value={editedUser?.subscriptionType}
-              onValueChange={(value) => onUserChange("subscriptionType", value)}
+              onValueChange={(value) => {
+                onUserChange("subscriptionType", value);
+                if (value !== "Slots") {
+                  onUserChange("remainingSlots", null);
+                }
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select subscription type" />
@@ -105,9 +132,10 @@ export function UserSubscriptionInfo({ user, isEditing, editedUser, onUserChange
               <Input
                 id="remainingSlots"
                 type="number"
+                min="0"
                 value={editedUser?.remainingSlots || 0}
                 onChange={(e) =>
-                  onUserChange("remainingSlots", parseInt(e.target.value))
+                  onUserChange("remainingSlots", parseInt(e.target.value) || 0)
                 }
               />
             </div>
