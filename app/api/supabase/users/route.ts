@@ -152,37 +152,7 @@ export async function POST(request: NextRequest) {
       if (userInfoError) throw userInfoError;
     }
 
-    // Fetch the created user with their info
-    const { data: createdUser, error: fetchError } = await supabase
-      .from('users')
-      .select(`
-        id,
-        name,
-        tenantId,
-        subscriptionType,
-        expiresAt,
-        remainingSlots,
-        status,
-        createdAt,
-        updatedAt,
-        userInfo:users_info (
-          email,
-          phoneNumber,
-          address,
-          birthDate,
-          birthPlace,
-          nationality,
-          gender,
-          emergencyContact,
-          notes
-        )
-      `)
-      .eq('id', userId)
-      .single();
-
-    if (fetchError) throw fetchError;
-
-    return NextResponse.json({ data: createdUser }, { status: 201 });
+    return NextResponse.json({ userId: userId }, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json(

@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from 'next/navigation';
 
 interface NewUserDialogProps {
   isOpen: boolean;
@@ -62,6 +63,7 @@ export function NewUserDialog({ isOpen, onClose }: NewUserDialogProps) {
     phoneNumber: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async () => {
     // Validate required fields
@@ -91,7 +93,10 @@ export function NewUserDialog({ isOpen, onClose }: NewUserDialogProps) {
           subscriptionType: formData.subscriptionType,
           status: formData.status,
           expiresAt: formData.expiresAt.toISOString(),
-          remainingSlots: formData.subscriptionType === "Slots" ? formData.remainingSlots : null,
+          remainingSlots:
+            formData.subscriptionType === "Slots"
+              ? formData.remainingSlots
+              : null,
           userInfo: {
             email: formData.email,
             phoneNumber: formData.phoneNumber,
@@ -122,9 +127,12 @@ export function NewUserDialog({ isOpen, onClose }: NewUserDialogProps) {
         email: "",
         phoneNumber: "",
       });
-      
+
       // Reload the page to refresh the user list
-      window.location.reload();
+      // window.location.reload();
+      const responseData = await response.json();
+      router.push(`/dashboard/users/${responseData.userId}`);
+
     } catch (error) {
       console.error("Error creating user:", error);
       toast.error("Failed to create user");
@@ -209,7 +217,10 @@ export function NewUserDialog({ isOpen, onClose }: NewUserDialogProps) {
                         mode="single"
                         selected={formData.expiresAt}
                         onSelect={(date) =>
-                          setFormData({ ...formData, expiresAt: date ?? undefined })
+                          setFormData({
+                            ...formData,
+                            expiresAt: date ?? undefined,
+                          })
                         }
                         initialFocus
                       />
@@ -320,7 +331,10 @@ export function NewUserDialog({ isOpen, onClose }: NewUserDialogProps) {
                         mode="single"
                         selected={formData.birthDate}
                         onSelect={(date) =>
-                          setFormData({ ...formData, birthDate: date ?? undefined })
+                          setFormData({
+                            ...formData,
+                            birthDate: date ?? undefined,
+                          })
                         }
                         initialFocus
                         fromYear={1900}
