@@ -36,11 +36,7 @@ export async function GET(request: NextRequest) {
         id,
         name,
         status,
-        subscriptionType,
-        userInfo:users_info (
-          email,
-          phoneNumber
-        )
+        subscriptionType
       `,
         { count: "exact" }
       )

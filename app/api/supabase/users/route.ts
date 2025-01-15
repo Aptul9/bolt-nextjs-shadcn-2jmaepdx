@@ -38,11 +38,7 @@ export async function GET(request: NextRequest) {
         remainingSlots,
         status,
         createdAt,
-        updatedAt,
-        userInfo:users_info (
-          email,
-          phoneNumber
-        )
+        updatedAt
       `)
       .eq('tenantId', tenantId);
 

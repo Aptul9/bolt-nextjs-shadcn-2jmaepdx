@@ -3,7 +3,7 @@ import { supabase } from '@/utils/supabase';
 import messages from '@/constants/messages';
 
 type HandlerArgs = { params: { id: string } };
-
+//retrieve access logs for a specific user
 export async function GET(request: NextRequest, { params }: HandlerArgs) {
   const { id } = params;
   const tenant_id = request.headers.get('tenant-id');
