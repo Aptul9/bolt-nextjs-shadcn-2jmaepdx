@@ -6,7 +6,7 @@ type HandlerArgs = { params: { id: string } };
 
 // Get a single User
 export async function GET(request: NextRequest, { params }: HandlerArgs) {
-  const { id } = params;
+  const id = await params.id;
   const tenant_id = request.headers.get('tenant-id');
 
   if (!tenant_id) {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest, { params }: HandlerArgs) {
 
 // Delete a User
 export async function DELETE(request: NextRequest, { params }: HandlerArgs) {
-  const { id } = params;
+  const id = await params.id;
   const tenant_id = request.headers.get('tenant-id');
 
   if (!tenant_id) {
@@ -100,7 +100,7 @@ export async function DELETE(request: NextRequest, { params }: HandlerArgs) {
 
 // Update a User
 export async function PUT(request: NextRequest, { params }: HandlerArgs) {
-  const { id } = params;
+  const id = await params.id;
   const tenant_id = request.headers.get('tenant-id');
 
   if (!tenant_id) {
