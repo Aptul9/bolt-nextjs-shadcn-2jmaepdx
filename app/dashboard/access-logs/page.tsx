@@ -22,11 +22,11 @@ import {
 import { CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
-import { supabase } from "@/utils/supabase";
+//TODO: Cambiare, non va bene supabaseAdmin ora serve solo per cercare nei tenants
+import { supabaseAdmin } from "@/utils/supabase";
 import { toast } from "sonner";
 import Link from "next/link";
 
-const TENANT_ID = "de51a5d5-0648-484c-9a29-88b39c2b0080";
 
 interface AccessLog {
   id: string;
@@ -46,7 +46,7 @@ export default function AccessLogsPage() {
 
   const fetchLogs = useCallback(async () => {
     setIsLoading(true);
-    let url = `/api/supabase/access-logs?tenantId=${TENANT_ID}`;
+    let url = `/api/supabase/access-logs/`;
 
     if (date?.from) {
       url += `&startDate=${date.from.toISOString()}`;
@@ -75,7 +75,7 @@ export default function AccessLogsPage() {
   useEffect(() => {
     fetchLogs();
 
-    const channel = supabase
+    const channel = supabaseAdmin
       .channel("access_logs_changes")
       .on(
         "postgres_changes",
@@ -85,7 +85,7 @@ export default function AccessLogsPage() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel).catch((error) => {
+      supabaseAdmin.removeChannel(channel).catch((error) => {
         console.error("Error cleaning up subscription:", error);
       });
     };

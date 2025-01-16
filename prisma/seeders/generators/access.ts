@@ -12,6 +12,7 @@ export const generateAccessLog = (
     userId,
     door: faker.number.int({ min: 1, max: 10 }),
     createdAt: faker.date.recent(),
+    success: faker.datatype.boolean(),
   };
 };
 

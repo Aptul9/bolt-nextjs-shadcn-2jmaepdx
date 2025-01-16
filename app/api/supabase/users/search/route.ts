@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/utils/supabase";
 import messages from "@/constants/messages";
+import { authenticateRequest } from "@/utils/auth";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
-  const searchText = searchParams.get("q");
-  const tenantId = searchParams.get("tenantId");
-  const page = parseInt(searchParams.get("page") || "1");
-  const perPage = 10;
-
   try {
-    if (!tenantId) {
-      return NextResponse.json(
-        { error: "tenantId is required" },
-        { status: 400 }
-      );
+    // Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
     }
+
+    // Destructure the authenticated client
+    const { supabase, tenantId } = authResult;
+
+    const { searchParams } = request.nextUrl;
+    const searchText = searchParams.get("q");
+    const page = parseInt(searchParams.get("page") || "1");
+    const perPage = 10;
 
     if (!searchText) {
       return NextResponse.json(
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error searching users:", error);
     return NextResponse.json(
-      { error: error, message: messages.request.failed },
+      { error, message: messages.request.failed },
       { status: 500 }
     );
   }

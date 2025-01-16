@@ -1,24 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabase';
-import messages from '@/constants/messages';
+import { NextRequest, NextResponse } from "next/server";
+import messages from "@/constants/messages";
+import { authenticateRequest } from "@/utils/auth";
 
 type HandlerArgs = { params: Promise<{ id: string }> };
 
-export async function GET(request: NextRequest,  args: HandlerArgs  ) {
-  const { id } = await args.params;
-  const tenant_id = request.headers.get('tenant-id');
-
-  if (!tenant_id) {
-    return NextResponse.json(
-      { message: 'Tenant ID is required' }, 
-      { status: 400 }
-    );
-  }
-
+export async function GET(request: NextRequest, args: HandlerArgs) {
   try {
+    // Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    // Destructure the authenticated client
+    const { supabase, tenantId } = authResult;
+    const { id } = await args.params;
+
     const { data, error } = await supabase
-      .from('users_info')
-      .select(`
+      .from("users_info")
+      .select(
+        `
         userId,
         birthDate,
         address,
@@ -32,42 +33,43 @@ export async function GET(request: NextRequest,  args: HandlerArgs  ) {
         notes,
         createdAt,
         updatedAt
-      `)
-      .eq('userId', id)
-      .eq('tenantId', tenant_id)
+      `
+      )
+      .eq("userId", id)
+      .eq("tenantId", tenantId)
       .single();
 
     if (error) throw error;
 
     if (!data) {
       return NextResponse.json(
-        { message: messages.request.notFound }, 
+        { message: messages.request.notFound },
         { status: 404 }
       );
     }
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error fetching user info:', error);
+    console.error("Error fetching user info:", error);
     return NextResponse.json(
-      { error, message: messages.request.failed }, 
+      { error, message: messages.request.failed },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(request: NextRequest, args: HandlerArgs) {
-  const { id } = await args.params;
-  const tenant_id = request.headers.get('tenant-id');
-
-  if (!tenant_id) {
-    return NextResponse.json(
-      { message: 'Tenant ID is required' }, 
-      { status: 400 }
-    );
-  }
-
   try {
+    // Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    // Destructure the authenticated client
+    const { supabase, tenantId } = authResult;
+    const { id } = await args.params;
+
     const body = await request.json();
     const {
       email,
@@ -78,11 +80,11 @@ export async function PUT(request: NextRequest, args: HandlerArgs) {
       nationality,
       gender,
       emergencyContact,
-      notes
+      notes,
     } = body;
 
     const { data, error } = await supabase
-      .from('users_info')
+      .from("users_info")
       .update({
         email,
         phoneNumber,
@@ -93,10 +95,10 @@ export async function PUT(request: NextRequest, args: HandlerArgs) {
         gender,
         emergencyContact,
         notes,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       })
-      .eq('userId', id)
-      .eq('tenantId', tenant_id)
+      .eq("userId", id)
+      .eq("tenantId", tenantId)
       .select()
       .single();
 
@@ -104,9 +106,9 @@ export async function PUT(request: NextRequest, args: HandlerArgs) {
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error updating user info:', error);
+    console.error("Error updating user info:", error);
     return NextResponse.json(
-      { error, message: messages.request.failed }, 
+      { error, message: messages.request.failed },
       { status: 500 }
     );
   }

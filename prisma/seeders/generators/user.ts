@@ -16,6 +16,7 @@ export const generateUser = (index: number, tenantId: string): User => {
     status: faker.datatype.boolean(),
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent(),
+    cardid: null,
     subscriptionType
   };
 };

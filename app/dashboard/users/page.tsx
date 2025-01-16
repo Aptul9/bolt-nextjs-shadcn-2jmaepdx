@@ -51,8 +51,8 @@ export default function UsersPage() {
     try {
       const baseUrl = "/api/supabase/users";
       let url = search
-        ? `${baseUrl}/search?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080&q=${search}`
-        : `${baseUrl}?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080`;
+        ? `${baseUrl}/search?q=${search}`
+        : `${baseUrl}/`;
 
       if (filters.status !== undefined) {
         url += `&status=${filters.status}`;
@@ -91,7 +91,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="space-y-4 md:space-y-8 max-md:mt-3.5">
+    <div className="space-y-4 md:space-y-8 max-md:mt-3.5 max-w-7xl mx-auto">
       <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center">
       <div className="flex items-center justify-between">
   <h1 className="text-3xl font-bold">Users</h1>

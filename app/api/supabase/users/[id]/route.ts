@@ -1,24 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabase';
-import messages from '@/constants/messages';
+import { NextRequest, NextResponse } from "next/server";
+import messages from "@/constants/messages";
+import { authenticateRequest } from "@/utils/auth";
 
 type HandlerArgs = { params: Promise<{ id: string }> };
 
 export async function GET(request: NextRequest, args: HandlerArgs) {
-  const { id } = await args.params;
-  const tenant_id = request.headers.get('tenant-id');
-
-  if (!tenant_id) {
-    return NextResponse.json(
-      { message: 'Tenant ID is required' }, 
-      { status: 400 }
-    );
-  }
-
   try {
+    // Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    // Destructure the authenticated client
+    const { supabase, tenantId } = authResult;
+    const { id } = await args.params;
+
     const { data, error } = await supabase
-      .from('users')
-      .select(`
+      .from("users")
+      .select(
+        `
         id,
         name,
         subscriptionType,
@@ -36,64 +37,60 @@ export async function GET(request: NextRequest, args: HandlerArgs) {
           emergencyContact,
           notes
         )
-      `)
-      .eq('id', id)
-      .eq('tenantId', tenant_id)
+      `
+      )
+      .eq("id", id)
+      .eq("tenantId", tenantId)
       .single();
 
     if (error) throw error;
 
     if (!data) {
       return NextResponse.json(
-        { message: messages.request.notFound }, 
+        { message: messages.request.notFound },
         { status: 404 }
       );
     }
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error, message: messages.request.failed }, 
+      { error, message: messages.request.failed },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(request: NextRequest, args: HandlerArgs) {
-  const { id } = await args.params;
-  const tenant_id = request.headers.get('tenant-id');
-
-  if (!tenant_id) {
-    return NextResponse.json(
-      { message: 'Tenant ID is required' }, 
-      { status: 400 }
-    );
-  }
-
   try {
+    // Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    // Destructure the authenticated client
+    const { supabase, tenantId } = authResult;
+    const { id } = await args.params;
     const body = await request.json();
-    const {
-      name,
-      subscriptionType,
-      status,
-      expiresAt,
-      remainingSlots
-    } = body;
+
+    const { name, subscriptionType, status, expiresAt, remainingSlots } = body;
 
     const { data, error } = await supabase
-      .from('users')
+      .from("users")
       .update({
         name,
         subscriptionType,
         status,
         expiresAt,
         remainingSlots,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       })
-      .eq('id', id)
-      .eq('tenantId', tenant_id)
-      .select(`
+      .eq("id", id)
+      .eq("tenantId", tenantId)
+      .select(
+        `
         id,
         name,
         subscriptionType,
@@ -111,16 +108,17 @@ export async function PUT(request: NextRequest, args: HandlerArgs) {
           emergencyContact,
           notes
         )
-      `)
+      `
+      )
       .single();
 
     if (error) throw error;
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error("Error updating user:", error);
     return NextResponse.json(
-      { error, message: messages.request.failed }, 
+      { error, message: messages.request.failed },
       { status: 500 }
     );
   }

@@ -17,14 +17,14 @@ export default function DashboardPage() {
       try {
         // Fetch active users
         const activeResponse = await fetch(
-          "/api/supabase/users/count?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080&activeOnly=true"
+          "/api/supabase/users/count?activeOnly=true"
         );
         const activeData = await activeResponse.json();
         setActiveUsers(activeData.count);
 
         // Fetch total users
         const totalResponse = await fetch(
-          "/api/supabase/users/count?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080"
+          "/api/supabase/users/count/"
         );
         const totalData = await totalResponse.json();
         setTotalUsers(totalData.count);
@@ -33,7 +33,7 @@ export default function DashboardPage() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayResponse = await fetch(
-          `/api/supabase/access-logs?tenantId=de51a5d5-0648-484c-9a29-88b39c2b0080&startDate=${today.toISOString()}&countOnly=true`
+          `/api/supabase/access-logs?startDate=${today.toISOString()}&countOnly=true`
         );
         const todayData = await todayResponse.json();
         setTodayAccess(todayData.count);
