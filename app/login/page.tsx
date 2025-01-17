@@ -12,16 +12,23 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createClient } from "@/utils/supabase/client";
 
 export default function LoginPage() {
   const [isResetMode, setIsResetMode] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const toggleMode = () => {
     setIsResetMode(!isResetMode);
-    setEmailError(null); // Clear errors when toggling modes
+    setEmailError(null);
     setPasswordError(null);
+    setResetEmailSent(false);
   };
 
   const validateEmail = (email: string): boolean => {
@@ -35,24 +42,32 @@ export default function LoginPage() {
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const email = event.target.value;
-    if (validateEmail(email)) {
-      setEmailError(null); // Clear error if email is valid
-    } else {
-      setEmailError("Please enter a valid email address.");
+    if (hasSubmitted) {
+      if (validateEmail(email)) {
+        setEmailError(null);
+      } else {
+        setEmailError("Please enter a valid email address.");
+      }
     }
   };
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const password = event.target.value;
-    if (validatePassword(password)) {
-      setPasswordError(null); // Clear error if password is valid
-    } else {
-      setPasswordError("Password cannot be empty.");
+    if (hasSubmitted) {
+      if (validatePassword(password)) {
+        setPasswordError(null);
+      } else {
+        setPasswordError("Password cannot be empty.");
+      }
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setHasSubmitted(true);
+    setIsLoading(true);
+    setLoginError(null); // Clear any previous login errors
+
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -74,18 +89,51 @@ export default function LoginPage() {
     }
 
     if (isValid) {
-      // Proceed with form submission
-      if (!isResetMode) {
-        login(formData);
-      } else {
-        // Handle password reset logic here
-        console.log("Reset password for:", email);
+      try {
+        if (!isResetMode) {
+          const result = await login(formData);
+          if (result?.error) {
+            setLoginError(result.error);
+          }
+          // If no error, the server action will handle the redirect
+        } else {
+          const supabase = createClient();
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/login/passwordreset`,
+          });
+
+          if (error) {
+            setLoginError("Failed to send reset email. Please try again.");
+          } else {
+            setResetEmailSent(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setLoginError("An unexpected error occurred. Please try again.");
       }
     }
+    setIsLoading(false);
   };
 
   const formContent = (
     <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+      {loginError && (
+        <Alert className="bg-red-50 border-red-200 mb-4">
+          <AlertDescription className="text-red-800">
+            {loginError}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {resetEmailSent && (
+        <Alert className="bg-green-50 border-green-200 mb-4">
+          <AlertDescription className="text-green-800">
+            Check your email for password reset instructions.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="email" className="text-base sm:text-lg">
           Email
@@ -100,6 +148,7 @@ export default function LoginPage() {
             emailError ? "border-red-500" : ""
           }`}
           onChange={handleEmailChange}
+          disabled={isLoading}
         />
         {emailError && (
           <p className="text-red-500 text-sm mt-1">{emailError}</p>
@@ -128,6 +177,7 @@ export default function LoginPage() {
                 passwordError ? "border-red-500" : ""
               }`}
               onChange={handlePasswordChange}
+              disabled={isLoading}
             />
             {passwordError && (
               <p className="text-red-500 text-sm mt-1">{passwordError}</p>
@@ -140,8 +190,13 @@ export default function LoginPage() {
         <Button
           type="submit"
           className="w-full h-10 sm:h-12 text-base sm:text-lg"
+          disabled={isLoading}
         >
-          {isResetMode ? "Send Reset Link" : "Sign In"}
+          {isLoading
+            ? "Loading..."
+            : isResetMode
+            ? "Send Reset Link"
+            : "Sign In"}
         </Button>
 
         <Button
@@ -149,6 +204,7 @@ export default function LoginPage() {
           variant="link"
           className="text-sm sm:text-base text-[hsl(var(--muted-foreground))] underline hover:text-gray-800"
           onClick={toggleMode}
+          disabled={isLoading}
         >
           {isResetMode ? "Back to Sign In" : "Forgot Password?"}
         </Button>
@@ -172,7 +228,6 @@ export default function LoginPage() {
         {formContent}
       </div>
 
-      {/* Desktop View (md and above) */}
       <Card className="hidden sm:block w-full max-w-lg pt-4 px-4">
         <CardHeader>
           <CardTitle className="text-2xl sm:text-3xl">
@@ -189,20 +244,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
-
-//old: 
-// import { login, signup } from "@/app/login/actions";
-// export default function LoginPage() {
-//   return (
-//     <form>
-//       <label htmlFor="email">Email:</label>
-//       <input id="email" name="email" type="email" required />
-//       <label htmlFor="password">Password:</label>
-//       <input id="password" name="password" type="password" required />
-//       <button formAction={login}>Log in</button>
-//       <button formAction={signup}>Sign up</button>
-//     </form>
-//   );
-// }
