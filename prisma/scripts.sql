@@ -35,3 +35,15 @@ WITH CHECK ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()
 CREATE POLICY "no_access" ON tenant_info
 FOR ALL
 USING (false);
+
+-- Disable row-level security on all tables
+ALTER TABLE tenants DISABLE ROW LEVEL SECURITY;
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE users_info DISABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_info DISABLE ROW LEVEL SECURITY;
+
+-- Drop policies (if needed) for complete deactivation
+DROP POLICY IF EXISTS "tenant_owner_only" ON tenants;
+DROP POLICY IF EXISTS "users_in_tenant" ON users;
+DROP POLICY IF EXISTS "users_info_in_tenant" ON users_info;
+DROP POLICY IF EXISTS "no_access" ON tenant_info;

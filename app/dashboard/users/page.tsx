@@ -37,7 +37,7 @@ interface Filters {
   expiringOnly?: boolean;
 }
 
-export default function UsersPage() {
+export default function Users () {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);

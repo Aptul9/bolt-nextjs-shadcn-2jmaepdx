@@ -1,10 +1,46 @@
 export const TENANT_IDS = [
-    'de51a5d5-0648-484c-9a29-88b39c2b0080',
-    '02905d6b-c765-41d2-9643-6d739ff83b39'
-  ] as const;
-  
-  export const USER_IDS = [
-    '24450ff5-f8b0-4acb-8bcd-cafdd57f20f4',
-    'f489a686-85d0-4022-a00c-f5794dcf1615',
-    '27eb6eae-f098-43b5-ac76-56902635fe2e'
-  ] as const;
+  "de51a5d5-0648-484c-9a29-88b39c2b0080",
+  "02905d6b-c765-41d2-9643-6d739ff83b39",
+] as const;
+
+export const USER_IDS = [
+  "cdb79616-b74d-4749-9888-15437a3f09c8",
+  "498598d7-e83e-40c8-a1c7-5500b0a810c4",
+  "396206c2-35df-420c-b765-a39b2a3ac92d",
+  "dccb01d6-419e-4ee1-8c35-0cf86e7a5851",
+  "1992f1f4-8e9f-470d-beb3-9ea25afb8034",
+
+  "0a0f55b8-c788-4c26-a740-b87925d782b8",
+
+  "02d5f649-a528-4897-9d3c-4579a586dcdd",
+
+  "84db3ec5-8419-454d-b235-9b9d0b96ebce",
+
+  "9f629b30-c1df-4959-a8c3-b26922d09e1d",
+
+  "0748bfe7-faf2-4c01-b9f0-63ea7defcf13",
+
+  "163847f3-110a-489a-9e34-500b54f0da26",
+
+  "84ae03b7-0d8b-49ce-92ce-87e202b9f8e8",
+
+  "0e76ecf8-8cbc-4a74-aa70-4b2f0a2b1899",
+
+  "58c78bc7-73d7-49de-96c6-bd9c803b2198",
+
+  "4d22329c-be8a-499b-8871-fc36cfee5ab8",
+
+  "99a1d408-ed50-474e-adff-a88feb805420",
+
+  "1617899e-43b7-4670-bb5a-3bf4006eba68",
+
+  "a3f5e5f2-6683-49f4-a7f0-60a4d04b92f0",
+
+  "752fc51c-d454-4c74-9ad4-784a7a96dc05",
+
+  "03c02af9-9abf-4a90-9f05-dc968b26df05",
+
+  "04e0805a-863e-4b6b-9ee8-696b7a7ee470",
+
+  "1d47f129-bb77-4343-a76e-c76501830271",
+] as const;
