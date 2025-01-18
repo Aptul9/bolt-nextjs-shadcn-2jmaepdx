@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import messages from "@/constants/messages";
 import { authenticateRequest } from "@/utils/auth";
 import { addDays } from "date-fns";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET(request: NextRequest) {
   try {
