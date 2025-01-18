@@ -257,14 +257,13 @@ export default function Users() {
         </Table>
       </div>
 
-      {/* Pagination Controls */}
-      {paginationMeta && (
+      {paginationMeta && (currentPage > 1 || paginationMeta.hasNextPage) && (
         <div className="flex justify-center items-center gap-4 mt-4">
           <Button
             variant="outline"
             size="icon"
-            onClick={() => handlePageChange(currentPage - 1)} // Move to the previous page
-            disabled={currentPage === 1} // Disable if on the first page
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -272,8 +271,8 @@ export default function Users() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => handlePageChange(currentPage + 1)} // Move to the next page
-            disabled={!paginationMeta.hasNextPage} // Disable if there is no next page
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={!paginationMeta.hasNextPage}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

@@ -19,14 +19,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
-//TODO: Cambiare, non va bene supabaseAdmin ora serve solo per cercare nei tenants
-import { supabaseAdmin } from "@/utils/supabase";
 import { toast } from "sonner";
 import Link from "next/link";
-
 
 interface AccessLog {
   id: string;
@@ -39,14 +36,22 @@ interface AccessLog {
   };
 }
 
+interface PaginationMeta {
+  currentPage: number;
+  previousPage: number | null;
+  hasNextPage: boolean;
+}
+
 export default function AccessLogsPage() {
   const [logs, setLogs] = useState<AccessLog[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [date, setDate] = useState<DateRange | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchLogs = useCallback(async () => {
     setIsLoading(true);
-    let url = `/api/supabase/access-logs/`;
+    let url = `/api/supabase/access-logs/?page=${currentPage}`;
 
     if (date?.from) {
       url += `&startDate=${date.from.toISOString()}`;
@@ -60,36 +65,24 @@ export default function AccessLogsPage() {
       if (!res.ok) throw new Error("Failed to fetch logs");
       const data = await res.json();
       setLogs(data.data);
+      setMeta(data.meta);
     } catch (error) {
       console.error("Error fetching logs:", error);
       toast.error("Failed to fetch access logs");
     } finally {
       setIsLoading(false);
     }
-  }, [date]);
-
-  const handleRealtimeUpdate = useCallback(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+  }, [currentPage, date]);
 
   useEffect(() => {
     fetchLogs();
+  }, [fetchLogs]);
 
-    const channel = supabaseAdmin
-      .channel("access_logs_changes")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "access_logs" },
-        handleRealtimeUpdate
-      )
-      .subscribe();
-
-    return () => {
-      supabaseAdmin.removeChannel(channel).catch((error) => {
-        console.error("Error cleaning up subscription:", error);
-      });
-    };
-  }, [fetchLogs, handleRealtimeUpdate]);
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && meta?.hasNextPage !== undefined) {
+      setCurrentPage(newPage);
+    }
+  };
 
   return (
     <div className="space-y-8 max-md:mt-3.5">
@@ -205,6 +198,27 @@ export default function AccessLogsPage() {
           </TableBody>
         </Table>
       </div>
+      {meta && (currentPage > 1 || meta.hasNextPage) && (
+        <div className="flex justify-center items-center gap-4 mt-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm">Page {currentPage}</span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={!meta.hasNextPage}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,29 +5,24 @@ import { authenticateRequest } from "@/utils/auth";
 export async function GET(request: NextRequest) {
   try {
     // Authenticate the request
-    const authResult = await authenticateRequest(request)
+    const authResult = await authenticateRequest(request);
     if (authResult instanceof NextResponse) {
-      return authResult
+      return authResult;
     }
 
-    // Destructure the authenticated client
-    const { supabase, tenantId } = authResult
+    const { supabase, tenantId } = authResult;
 
     const { searchParams } = request.nextUrl;
     const userId = searchParams.get("userId");
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
-    const countOnly = searchParams.get("countOnly") === "true";
-    const page = parseInt(searchParams.get("page") || "1");
+    const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
     const perPage = 10;
 
-    // Build the query using the authenticated supabase client
     let query = supabase
       .from("access_logs")
       .select(
-        countOnly
-          ? "id"
-          : `
+        `
         id,
         timestamp,
         door,
@@ -37,66 +32,35 @@ export async function GET(request: NextRequest) {
           id,
           name
         )
-      `,
-        { count: "exact" }
+      `
       )
-      .eq("tenantId", tenantId);  // Using tenantId from auth
+      .eq("tenantId", tenantId);
 
-    if (userId) {
-      query = query.eq("userId", userId);
-    }
+    if (userId) query = query.eq("userId", userId);
+    if (startDate) query = query.gte("timestamp", startDate);
+    if (endDate) query = query.lte("timestamp", endDate);
 
-    if (startDate) {
-      query = query.gte("timestamp", startDate);
-    }
-
-    if (endDate) {
-      query = query.lte("timestamp", endDate);
-    }
-
-    if (countOnly) {
-      const { count, error } = await query;
-      if (error) {
-        console.error("Error getting count:", error);
-        return NextResponse.json(
-          { error: messages.request.failed },
-          { status: 500 }
-        );
-      }
-      return NextResponse.json({ count }, { status: 200 });
-    }
-
-    const { data, error, count } = await query
-      .range((page - 1) * perPage, page * perPage - 1)
-      .order("timestamp", { ascending: false });
+    const { data, error } = await query
+      .order("timestamp", { ascending: false })
+      .range((page - 1) * perPage, page * perPage);
 
     if (error) {
-      console.error("Error fetching data:", error);
-      return NextResponse.json(
-        { error: messages.request.failed },
-        { status: 500 }
-      );
+      console.error("Error fetching logs:", error);
+      return NextResponse.json({ error: messages.request.failed }, { status: 500 });
     }
 
-    const totalPages = Math.ceil((count || 0) / perPage);
+    const hasNextPage = data.length > perPage;
+    const logs = hasNextPage ? data.slice(0, perPage) : data;
 
     const meta = {
-      isFirstPage: page === 1,
-      isLastPage: page === totalPages,
+      hasNextPage,
       currentPage: page,
       previousPage: page > 1 ? page - 1 : null,
-      nextPage: page < totalPages ? page + 1 : null,
-      pageCount: totalPages,
-      totalCount: count,
     };
 
-    return NextResponse.json({ data, meta }, { status: 200 });
-    
+    return NextResponse.json({ data: logs, meta }, { status: 200 });
   } catch (error) {
     console.error("Error in access logs API:", error);
-    return NextResponse.json(
-      { error, message: messages.request.failed },
-      { status: 500 }
-    );
+    return NextResponse.json({ error, message: messages.request.failed }, { status: 500 });
   }
 }
