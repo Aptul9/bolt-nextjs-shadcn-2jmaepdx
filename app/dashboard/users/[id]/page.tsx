@@ -127,11 +127,14 @@ export default function UserPage() {
       }
 
       // Fetch updated user data to ensure we have the latest state
-      const updatedUserResponse = await fetch(`/api/supabase/users/${editedUser.id}`, {
-        headers: {
-          "tenant-id": "de51a5d5-0648-484c-9a29-88b39c2b0080",
-        },
-      });
+      const updatedUserResponse = await fetch(
+        `/api/supabase/users/${editedUser.id}`,
+        {
+          headers: {
+            "tenant-id": "de51a5d5-0648-484c-9a29-88b39c2b0080",
+          },
+        }
+      );
 
       if (!updatedUserResponse.ok) {
         throw new Error("Failed to fetch updated user data");
@@ -144,7 +147,11 @@ export default function UserPage() {
       toast.success("User information updated successfully");
     } catch (error) {
       console.error("Error updating user:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update user information");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to update user information"
+      );
     } finally {
       setIsSaving(false);
     }
@@ -160,7 +167,7 @@ export default function UserPage() {
         return {
           ...prev,
           [parent]: {
-            ...prev[parent as keyof User],
+            ...(prev[parent as keyof User] as object),
             [child]: value,
           },
         };
@@ -176,9 +183,9 @@ export default function UserPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 max-md:mt-3.5">
         <Skeleton className="h-8 w-1/3" />
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Skeleton className="h-[200px]" />
           <Skeleton className="h-[200px]" />
           <Skeleton className="h-[200px]" />
@@ -193,24 +200,32 @@ export default function UserPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-md:mt-3.5">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">{user.name}</h1>
         {!isEditing ? (
           <Button onClick={handleEdit}>Edit</Button>
         ) : (
-          <div className="space-x-2">
-            <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save"}
-            </Button>
+          <div className="space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row items-center md:items-start">
+            <div className="w-full md:w-auto flex justify-center md:justify-start">
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isSaving}
+              >
+                Cancel
+              </Button>
+            </div>
+            <div className="w-full md:w-auto flex justify-center md:justify-start">
+              <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+            </div>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <UserSubscriptionInfo
           user={user}
           isEditing={isEditing}

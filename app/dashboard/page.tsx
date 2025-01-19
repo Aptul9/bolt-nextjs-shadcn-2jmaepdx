@@ -36,7 +36,8 @@ export default function DashboardPage() {
           `/api/supabase/access-logs?startDate=${today.toISOString()}&countOnly=true`
         );
         const todayData = await todayResponse.json();
-        setTodayAccess(todayData.count);
+        //TODO: controllare se funziona bene
+        setTodayAccess(todayData.count || 0);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {

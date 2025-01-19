@@ -14,54 +14,71 @@ export async function authenticateRequest(
   request: NextRequest
 ): Promise<AuthenticatedClient | NextResponse> {
   try {
-    let clientSupabase = await createClient()
-    let authenticatedUser: SupabaseUser | null = null
-    
     // Handle token-based auth (external clients)
     const authHeader = request.headers.get('Authorization')
     
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.split('Bearer ')[1]
-      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
       
-      if (error || !user) {
+      // Verify the token first
+      const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token)
+      
+      if (userError || !user) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 })
       }
 
       // Create a new Supabase client with the token
-      clientSupabase = await createClient()
-      await clientSupabase.auth.setSession({
+      const clientSupabase = await createClient()
+      const { error: sessionError } = await clientSupabase.auth.setSession({
         access_token: token,
-        refresh_token: ''
+        refresh_token: token  // Or handle refresh token properly
       })
-      
-      authenticatedUser = user
+
+      if (sessionError) {
+        return NextResponse.json({ error: "Session setup failed" }, { status: 401 })
+      }
+
+      // Fetch tenant using the client instance, not admin
+      const { data: tenant, error: tenantError } = await clientSupabase
+        .from('tenants')
+        .select('id')
+        .eq('ownerId', user.id)
+        .single()
+
+      if (tenantError || !tenant) {
+        return NextResponse.json({ error: "No active tenant found for this user" }, { status: 403 })
+      }
+
+      return {
+        supabase: clientSupabase,
+        user,
+        tenantId: tenant.id
+      }
     } else {
       // Cookie-based auth (Next.js client)
-      const { data: { user }, error } = await clientSupabase.auth.getUser()
+      const clientSupabase = await createClient()
+      const { data: { user }, error: userError } = await clientSupabase.auth.getUser()
       
-      if (error || !user) {
+      if (userError || !user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
       }
-      
-      authenticatedUser = user
-    }
 
-    // Fetch tenant information using supabaseAdmin
-    const { data: tenant, error: tenantError } = await supabaseAdmin
-      .from('tenants')
-      .select('id')
-      .eq('ownerId', authenticatedUser.id)
-      .single()
+      // Fetch tenant using the client instance
+      const { data: tenant, error: tenantError } = await clientSupabase
+        .from('tenants')
+        .select('id')
+        .eq('ownerId', user.id)
+        .single()
 
-    if (tenantError || !tenant) {
-      return NextResponse.json({ error: "No active tenant found for this user" }, { status: 403 })
-    }
+      if (tenantError || !tenant) {
+        return NextResponse.json({ error: "No active tenant found for this user" }, { status: 403 })
+      }
 
-    return {
-      supabase: clientSupabase,
-      user: authenticatedUser,
-      tenantId: tenant.id
+      return {
+        supabase: clientSupabase,
+        user,
+        tenantId: tenant.id
+      }
     }
   } catch (error) {
     console.error('Auth error:', error)
