@@ -4,8 +4,22 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
-import { ChevronRight, Users, Key, LayoutDashboard, Settings, LogOut, Dumbbell, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ChevronRight,
+  Users,
+  Key,
+  LayoutDashboard,
+  Settings,
+  LogOut,
+  Dumbbell,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -17,7 +31,11 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-export function Sidebar({ isCollapsed, setIsCollapsed, onClose }: SidebarProps) {
+export function Sidebar({
+  isCollapsed,
+  setIsCollapsed,
+  onClose,
+}: SidebarProps) {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false); // State for logout confirmation dialog
   const router = useRouter();
 
@@ -128,7 +146,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, onClose }: SidebarProps) 
 
       <div className="mt-auto border-t p-4">
         <div className="space-y-2">
-          <Button
+          {/* <Button
             variant="ghost"
             className={cn(
               "w-full justify-start transition-all duration-300",
@@ -144,7 +162,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, onClose }: SidebarProps) 
             >
               Settings
             </span>
-          </Button>
+          </Button> */}
           <Button
             onClick={() => setIsLogoutDialogOpen(true)} // Open dialog on click
             variant="ghost"
@@ -168,21 +186,26 @@ export function Sidebar({ isCollapsed, setIsCollapsed, onClose }: SidebarProps) 
 
       {/* Logout Confirmation Dialog */}
       <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
-  <DialogContent>
-    <DialogTitle>
-      <VisuallyHidden>Confirm Logout</VisuallyHidden>
-    </DialogTitle>
-    <p className="text-lg font-medium">Are you sure you want to log out?</p>
-    <DialogFooter>
-      <Button variant="secondary" onClick={() => setIsLogoutDialogOpen(false)}>
-        Cancel
-      </Button>
-      <Button variant="destructive" onClick={handleLogout}>
-        Logout
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+        <DialogContent>
+          <DialogTitle>
+            <VisuallyHidden>Confirm Logout</VisuallyHidden>
+          </DialogTitle>
+          <p className="text-lg font-medium">
+            Are you sure you want to log out?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => setIsLogoutDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleLogout}>
+              Logout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import {
@@ -202,4 +202,10 @@ const ResetPasswordPage = () => {
   );
 };
 
-export default ResetPasswordPage;
+const ResetPasswordPageWithSuspense = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <ResetPasswordPage />
+  </Suspense>
+);
+
+export default ResetPasswordPageWithSuspense;
