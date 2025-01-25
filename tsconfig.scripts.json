@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "target": "es2019",
+      "lib": ["esnext"],
+      "module": "commonjs",          // More TS-node friendly
+      "moduleResolution": "node",    // More TS-node friendly
+      "esModuleInterop": true,
+      "strict": true,
+      "baseUrl": ".",                
+      "paths": {
+        "@/*": ["./*"]
+      }
+    },
+    "include": ["prisma/**/*.ts"]
+  }
+  

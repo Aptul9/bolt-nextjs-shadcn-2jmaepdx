@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate --schema=./packages/db/schema.prisma",
-    "prisma:localpush": "dotenv -e .env.local -- npx prisma db push"
+    "prisma:localpush": "dotenv -e .env.local -- npx prisma db push",
+    "create_user": "dotenv -e .env.local -- ts-node -r tsconfig-paths/register --project tsconfig.scripts.json prisma/create_user.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -84,6 +85,7 @@
   "devDependencies": {
     "@faker-js/faker": "^9.4.0",
     "@types/uuid": "^10.0.0",
-    "prisma": "^6.2.1"
+    "prisma": "^6.2.1",
+    "tsconfig-paths": "^4.2.0"
   }
 }
