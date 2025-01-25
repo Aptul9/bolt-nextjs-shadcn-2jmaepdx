@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prisma:generate": "prisma generate --schema=./packages/db/schema.prisma"
+    "prisma:generate": "prisma generate --schema=./packages/db/schema.prisma",
+    "prisma:localpush": "dotenv -e .env.local -- npx prisma db push"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
