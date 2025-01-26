@@ -9,7 +9,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN npm run build:selfdocker
 
 # Production image, copy all the files and run the app
 FROM node:18-alpine AS runner

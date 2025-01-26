@@ -10,4 +10,6 @@ node .next/standalone/server.js
 docker build -t nextjs-docker -f ./docker/Dockerfile .    
 docker run -p 3000:3000 nextjs-docker
 
-docker compose -f other/supabase-docker/docker-compose.yaml -f -f docker/compose.yml up -d
+docker compose --env-file ./docker/supa.env -f other/supabase-docker/docker/docker-compose.yml -f docker/compose.yml up -d
+
+docker compose --env-file ./docker/supa.env -f other/supabase-docker/docker/docker-compose.yml -f docker/compose.yml down
