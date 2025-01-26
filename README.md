@@ -1,3 +1,6 @@
+# Important
+Do not create any .env.local file, there will be no way to not include them in the build, always give different names
+
 # Supabase
 
 ## Run Supabase locally
