@@ -7,5 +7,7 @@ npm run create_user
 node .next/standalone/server.js
 
 #docker
-docker build -t nextjs-docker .    
+docker build -t nextjs-docker -f ./docker/Dockerfile .    
 docker run -p 3000:3000 nextjs-docker
+
+docker compose -f other/supabase-docker/docker-compose.yaml -f -f docker/compose.yml up -d

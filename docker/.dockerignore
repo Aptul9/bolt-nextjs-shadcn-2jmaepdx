@@ -63,6 +63,7 @@ README.md
 .turbo
 
 # Docker-specific
-compose.yml
+docker/
+
 
 other/
