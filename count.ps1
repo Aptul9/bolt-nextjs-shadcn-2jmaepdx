@@ -1,1 +1,0 @@
-cloc --exclude-dir=node_modules,.next --not-match-f="^package-lock\.json$" .

@@ -1,0 +1,1 @@
+cloc --exclude-dir=node_modules,.next,supabase-docker --not-match-f="^package-lock\.json$" .
