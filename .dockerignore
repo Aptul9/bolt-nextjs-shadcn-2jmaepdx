@@ -1,0 +1,68 @@
+# Dependency directories
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build output
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Configuration and tooling files
+.eslintrc.json
+.prettierignore
+components.json
+next-env.d.ts
+postcss.config.js
+tailwind.config.ts
+tsconfig.json
+tsconfig.scripts.json
+
+# Version control
+.git
+.gitignore
+
+# Development logs and caches
+*.log
+.cache/
+.eslintcache
+.npm
+
+# Testing
+coverage/
+*.test.js
+*.test.ts
+
+# Package management
+package-lock.json
+npm-shrinkwrap.json
+
+# Project documentation
+README.md
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Misc development files
+.pnp
+.pnp.js
+.vercel
+.turbo
+
+# Docker-specific
+compose.yml
+
+other/
