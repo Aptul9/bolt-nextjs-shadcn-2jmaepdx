@@ -2,13 +2,14 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./ 
-RUN npm install --frozen-lockfile --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN npx prisma generate
 RUN npm run build:selfdocker
 
 # Production image, copy all the files and run the app
