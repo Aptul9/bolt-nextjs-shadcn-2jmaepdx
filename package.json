@@ -14,7 +14,7 @@
     "lint": "next lint",
     "prisma:generate": "prisma generate --schema=./packages/db/schema.prisma",
     "prisma:localpush": "dotenv -e .env.local -- npx prisma db push",
-    "create_user": "dotenv -e .env.local -- ts-node -r tsconfig-paths/register --project tsconfig.scripts.json prisma/create_user.ts",
+    "create_user": "dotenv -e .env.local -- ts-node -r tsconfig-paths/register --project tsconfig.scripts.json prisma/create_user.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
