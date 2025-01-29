@@ -42,3 +42,6 @@ All the scripts that we can use to build and run can be found inside the `/scrip
 We are using supabase docker sample from the official script, just replacing the .env file with our personal one.
 https://github.com/supabase/supabase/tree/master/docker
 The repository has been cloned with a sparse checkout approach, all the commands can be found inside the `/scripts` folder.
+
+# Emails
+https://cleanclip.cc/developer/cloudflare-worker-gmail-resend-enterprise-email/#_3-2-fill-in-the-name-and-the-account-for-sending-emails
