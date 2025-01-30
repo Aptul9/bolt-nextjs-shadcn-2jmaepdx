@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { sendEmail } from "@/app/actions/sendEmail"; // Import the server action
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,11 +15,22 @@ export default function ContactPage() {
     phone: "",
     message: ""
   });
+  const [feedbackMessage, setFeedbackMessage] = useState(""); // Added state for feedback message
+  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Message sent successfully! We'll get back to you soon.");
-    setFormData({ email: "", phone: "", message: "" });
+    
+    startTransition(async () => {
+      const result = await sendEmail(formData);
+      
+      if (result.success) {
+        setFeedbackMessage("Your message has been sent successfully! We'll get back to you soon.");
+        setFormData({ email: "", phone: "", message: "" });
+      } else {
+        setFeedbackMessage("There was an error sending your message. Please try again later.");
+      }
+    });
   };
 
   return (
@@ -76,10 +88,17 @@ export default function ContactPage() {
                 />
               </div>
 
-              <Button type="submit" className="w-full">
-                Send Message
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? "Sending..." : "Send Message"}
               </Button>
             </form>
+
+            {/* Display feedback message here */}
+            {feedbackMessage && (
+              <div className="mt-6 text-center">
+                <p className="text-lg font-medium">{feedbackMessage}</p>
+              </div>
+            )}
           </div>
         </div>
       </main>
