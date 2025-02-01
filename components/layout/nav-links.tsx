@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface NavLinksProps {
   onClose?: () => void;
@@ -48,6 +49,18 @@ export function NavLinks({ onClose }: NavLinksProps) {
         onClick={() => onClose?.()}
       >
         Contact Us
+      </Link>
+      <Link
+        href="/about"
+        className="block py-2 px-4 rounded-md hover:bg-accent text-foreground transition-colors"
+        onClick={() => onClose?.()}
+      >
+        About Us
+      </Link>
+      <Link href="/dashboard" onClick={() => onClose?.()}>
+        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+          Dashboard
+        </Button>
       </Link>
     </>
   );

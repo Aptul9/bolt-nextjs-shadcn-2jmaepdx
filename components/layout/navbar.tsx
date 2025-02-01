@@ -31,7 +31,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop navigation */}
-          <div className="hidden sm:flex sm:items-center sm:space-x-8">
+          <div className="hidden sm:flex sm:items-center sm:space-x-6">
             <NavLinks />
           </div>
         </div>
