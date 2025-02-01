@@ -44,9 +44,18 @@ https://github.com/supabase/supabase/tree/master/docker
 The repository has been cloned with a sparse checkout approach, all the commands can be found inside the `/scripts` folder.
 
 # Emails
-https://cleanclip.cc/developer/cloudflare-worker-gmail-resend-enterprise-email/#_3-2-fill-in-the-name-and-the-account-for-sending-emails
+The email workflow is the following:
+1) We moved the DNS of the custom domain to Cloudflare.
+2) We added a Catch-All and a Custom address (team@domain.it) (do to this the domain needs to be verified first)
+3) Added destination address: from team@domain.it > myemail@gmail.com
+4) Generated and added the Resend key, then set it up on the DNS and on Custom sender on Gmail as well Guide: https://cleanclip.cc/developer/cloudflare-worker-gmail-resend-enterprise-email/#_3-2-fill-in-the-name-and-the-account-for-sending-emails
+
+#### In conclusion:
+If we receive an email, it gets forwarded to our custom email
+If we want to send en email, it will be sent through Resend using our Custom Domain
 
 # Icons
 Icon used to generate: https://realfavicongenerator.net/favicon-generator/nextjs
 To check we can run:
 `npx realfavicon check 3000`
+There are still some issues with dark icons and stuff, might need to resolve
