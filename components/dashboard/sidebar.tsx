@@ -88,7 +88,7 @@ export function Sidebar({
               isCollapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
             )}
           >
-            GymAccess
+            CorePass
           </span>
         </div>
         {/* Close button for mobile */}

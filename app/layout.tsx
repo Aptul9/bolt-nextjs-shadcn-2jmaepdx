@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'GymAccess - Smart Gym Management System',
+  title: 'CorePass - Smart Gym Management System',
   description: 'Streamline your facility access, enhance security, and improve member experience with our comprehensive management system.',
 };
 
