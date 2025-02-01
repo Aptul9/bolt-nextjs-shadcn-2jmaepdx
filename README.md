@@ -45,3 +45,8 @@ The repository has been cloned with a sparse checkout approach, all the commands
 
 # Emails
 https://cleanclip.cc/developer/cloudflare-worker-gmail-resend-enterprise-email/#_3-2-fill-in-the-name-and-the-account-for-sending-emails
+
+# Icons
+Icon used to generate: https://realfavicongenerator.net/favicon-generator/nextjs
+To check we can run:
+`npx realfavicon check 3000`

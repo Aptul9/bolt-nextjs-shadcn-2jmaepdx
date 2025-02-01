@@ -20,24 +20,28 @@ export function HeroSection() {
             Smart Access Management for Modern Gyms
           </h1>
           <p className="text-xl text-gray-200 mb-8 max-w-3xl mx-auto">
-            Streamline your facility access, enhance security, and improve member experience with our comprehensive management system.
+            Streamline your facility access, enhance security, and improve
+            member experience with our comprehensive management system.
           </p>
-<div className="flex flex-col gap-4 justify-center items-center px-10 sm:flex-row sm:gap-4 sm:space-y-0">
-  <Button 
-    size="lg" 
-    className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
-  >
-    Get Started <ArrowRight className="ml-2 h-5 w-5" />
-  </Button>
-  <Button 
-    size="lg" 
-    variant="outline" 
-    className="bg-white/10 hover:bg-white/20 text-white border-white/20 w-full sm:w-auto"
-  >
-    Book Demo
-  </Button>
-</div>
+          <div className="flex flex-col gap-4 justify-center items-center px-10 sm:flex-row sm:gap-4 sm:space-y-0">
+            <Button
+              asChild
+              size="lg"
+              className="bg-primary hover:bg-primary/90 hover:scale-105 hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
+            >
+              <a href="/contact">
+                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
+            </Button>
 
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20 w-full sm:w-auto"
+            >
+              Live Demo
+            </Button>
+          </div>
         </div>
       </div>
     </header>
