@@ -36,7 +36,7 @@ export default function ContactPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-1">
-        <div className="min-h-screen pt-24 pb-12 bg-background">
+        <div className="pt-24 pb-12 bg-background">
           <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>

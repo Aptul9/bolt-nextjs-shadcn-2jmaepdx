@@ -3,25 +3,14 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const companyInfo = {
-  businessName: "CorePass S.r.l.",
-  registeredOffice: "Contrada Castromurro 39, Belvedere Marittimo 87023",
-  taxCode: "03943760789",
-  vatNumber: "IT03943760789",
-  pecEmail: "corepass@pec.it",
-  businessRegistry: "Camera di Commercio di Cosenza",
-  reaNumber: "CS-123456",
-  capital: "€10,000.00",
-  management: "Independent Company",
-};
+import companyInfo from "@/constants/companyInfo";
 
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-1">
-        <div className="min-h-screen pt-24 pb-12 bg-background">
+        <div className="pt-24 pb-12 bg-background">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <Card>
               <CardHeader>
@@ -33,54 +22,49 @@ export default function AboutPage() {
                 <div className="grid gap-4">
                   <div className="space-y-2">
                     <h3 className="font-semibold text-primary">
-                      Business Name
+                      Nome Società:
                     </h3>
                     <p>{companyInfo.businessName}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-primary">
-                      Registered Office
-                    </h3>
+                    <h3 className="font-semibold text-primary">Sede Legale:</h3>
                     <p>{companyInfo.registeredOffice}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-primary">Tax Code</h3>
-                    <p>{companyInfo.taxCode}</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-primary">VAT Number</h3>
+                    <h3 className="font-semibold text-primary">Partita IVA:</h3>
                     <p>{companyInfo.vatNumber}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-primary">PEC Email</h3>
+                    <h3 className="font-semibold text-primary">PEC:</h3>
                     <p>{companyInfo.pecEmail}</p>
                   </div>
 
                   <div className="space-y-2">
                     <h3 className="font-semibold text-primary">
-                      Business Registry
+                      Registro Delle Imprese:
                     </h3>
                     <p>{companyInfo.businessRegistry}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-primary">REA Number</h3>
+                    <h3 className="font-semibold text-primary">REA:</h3>
                     <p>{companyInfo.reaNumber}</p>
                   </div>
 
                   <div className="space-y-2">
                     <h3 className="font-semibold text-primary">
-                      Share Capital
+                      Capitale Sociale
                     </h3>
                     <p>{companyInfo.capital}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-primary">Management</h3>
+                    <h3 className="font-semibold text-primary">
+                      Tipo Di Società:
+                    </h3>
                     <p>{companyInfo.management}</p>
                   </div>
                 </div>

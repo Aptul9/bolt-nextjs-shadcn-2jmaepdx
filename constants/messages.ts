@@ -1,5 +1,3 @@
-import { notFound } from "next/navigation";
-
 const messages = {
 	success: 'Successfully added!',
 	updated: 'Successfully updated!',

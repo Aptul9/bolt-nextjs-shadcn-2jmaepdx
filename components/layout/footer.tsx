@@ -1,5 +1,6 @@
 "use client";
 
+import companyInfo from "@/constants/companyInfo";
 import { getCurrentYear } from "@/lib/date-utils";
 
 export function Footer() {
@@ -14,8 +15,8 @@ export function Footer() {
             © {getCurrentYear()} CorePass. All rights reserved.
           </div>
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-muted-foreground text-center sm:text-right">
-            <div>Contrada Castromurro 39, Belvedere Marittimo 87023</div>
-            <div>VAT: IT03943760789</div>
+            {/* <div>Contrada Castromurro 39, Belvedere Marittimo 87023</div> */}
+            <div>{companyInfo.vatNumber}</div>
             <div> (+39) 351 834 7869</div>
           </div>
         </div>
