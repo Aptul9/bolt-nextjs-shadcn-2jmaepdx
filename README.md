@@ -59,3 +59,21 @@ Icon used to generate: https://realfavicongenerator.net/favicon-generator/nextjs
 To check we can run:
 `npx realfavicon check 3000`
 There are still some issues with dark icons and stuff, might need to resolve
+
+# Swagger
+To generate the swagger we have used https://www.npmjs.com/package/next-swagger-doc
+And followed the documentation.
+To add a swagger to an API we need to add something like this:
+```
+/**
+ * @swagger
+ * /api/healthcheck:
+ *   get:
+ *     description: Returns the hello world
+ *     responses:
+ *       200:
+ *         description: Hello World!
+ */
+ ```
+
+ We can then visit the /api-doc/ page. This might need to be implemented for more APIs, as the time of writing it is used only for healthcheck.
