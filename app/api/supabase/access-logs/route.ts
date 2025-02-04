@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import messages from "@/constants/messages";
 import { authenticateDevice, authenticateRequest } from "@/utils/auth";
 import { v4 as uuidv4 } from "uuid";
+import { supabaseAdmin } from "@/utils/supabase";
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,8 +69,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Extract the device access key from the request body
-    const { accessKey, userId, door, success } = await request.json();
+    // Extract the device access key and card ID from the request body
+    const { accessKey, cardid, door, success } = await request.json();
 
     // Authenticate the device using the access key
     const device = await authenticateDevice(accessKey);
@@ -77,20 +78,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: messages.device.invalidKey }, { status: 401 });
     }
 
-    // Assuming the `userId` exists and corresponds to a valid user in the tenant
-    if (!userId) {
-      return NextResponse.json({ error: messages.request.notFound }, { status: 400 });
+    // Find the user based on the card ID
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from("users")
+      .select("id, tenantId")
+      .eq("cardid", cardid)
+      .eq("tenantId", device.tenantId)
+      .single();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: messages.request.notFound }, { status: 404 });
     }
 
     // Create the access log
-    const { supabaseAdmin, tenantId } = device;
     const { data, error } = await supabaseAdmin
       .from("access_logs")
       .insert([
         {
           id: uuidv4(),
-          tenantId: tenantId,
-          userId: userId,
+          tenantId: userData.tenantId,
+          userId: userData.id,
           door: door,
           success: success,
         },
