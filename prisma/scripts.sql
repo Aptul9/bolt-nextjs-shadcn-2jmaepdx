@@ -17,6 +17,8 @@ ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users_info ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tenant_info ENABLE ROW LEVEL SECURITY;
+ALTER TABLE devices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE access_logs ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "tenant_owner_only" ON tenants
 FOR SELECT
@@ -28,6 +30,16 @@ USING ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()))
 WITH CHECK ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()));
 
 CREATE POLICY "users_info_in_tenant" ON users_info
+FOR ALL
+USING ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()))
+WITH CHECK ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()));
+
+CREATE POLICY "user_device" ON devices
+FOR ALL
+USING ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()))
+WITH CHECK ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()));
+
+CREATE POLICY "access_logs" ON devices
 FOR ALL
 USING ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()))
 WITH CHECK ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()));

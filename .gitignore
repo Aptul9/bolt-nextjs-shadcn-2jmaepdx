@@ -37,3 +37,6 @@ next-env.d.ts
 /other/supabase-docker/
 /public/*.txt
 /public/*.xml
+
+
+.env

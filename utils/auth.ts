@@ -85,3 +85,18 @@ export async function authenticateRequest(
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
   }
 }
+
+export async function authenticateDevice(accessKey: string) {
+  const { data, error } = await supabaseAdmin
+    .from("devices")
+    .select("tenantId")
+    .eq("accessKey", accessKey)
+    .single();
+
+  if (error || !data) {
+    console.error("Device authentication failed:", error);
+    return null;
+  }
+
+  return { tenantId: data.tenantId, supabaseAdmin };
+}
