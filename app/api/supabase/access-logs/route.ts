@@ -20,9 +20,32 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("userId");
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
+    const countOnly = searchParams.get("countOnly") === "true";
     const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
     const perPage = 10;
 
+    // If count only, use a simple count query
+    if (countOnly) {
+      let countQuery = supabase
+        .from("access_logs")
+        .select('id', { count: 'exact', head: true })
+        .eq("tenantId", tenantId);
+
+      if (userId) countQuery = countQuery.eq("userId", userId);
+      if (startDate) countQuery = countQuery.gte("timestamp", startDate);
+      if (endDate) countQuery = countQuery.lte("timestamp", endDate);
+
+      const { count, error } = await countQuery;
+
+      if (error) {
+        console.error("Error counting logs:", error);
+        return NextResponse.json({ error: messages.request.failed }, { status: 500 });
+      }
+
+      return NextResponse.json({ count }, { status: 200 });
+    }
+
+    // Regular query for logs
     let query = supabase
       .from("access_logs")
       .select(
