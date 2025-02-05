@@ -116,7 +116,7 @@ export default function LoginPage() {
     setIsLoading(false);
   };
 
-  const formContent = (
+  const LoginForm = ({ isMobile = false }: { isMobile?: boolean }) => (
     <form className="space-y-4" onSubmit={handleSubmit} noValidate>
       {loginError && (
         <Alert className="bg-red-50 border-red-200 mb-4">
@@ -135,11 +135,11 @@ export default function LoginPage() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-base sm:text-lg">
+        <Label htmlFor={`email-${isMobile ? 'mobile' : 'desktop'}`} className="text-base sm:text-lg">
           Email
         </Label>
         <Input
-          id="email"
+          id={`email-${isMobile ? 'mobile' : 'desktop'}`}
           name="email"
           type="email"
           placeholder="name@example.com"
@@ -165,11 +165,11 @@ export default function LoginPage() {
             transition={{ duration: 0.2 }}
             className="space-y-2"
           >
-            <Label htmlFor="password" className="text-base sm:text-lg">
+            <Label htmlFor={`password-${isMobile ? 'mobile' : 'desktop'}`} className="text-base sm:text-lg">
               Password
             </Label>
             <Input
-              id="password"
+              id={`password-${isMobile ? 'mobile' : 'desktop'}`}
               name="password"
               type="password"
               required
@@ -214,6 +214,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center sm:bg-gray-50 p-5 max-sm:p-8">
+      {/* Mobile View */}
       <div className="w-full sm:hidden space-y-4">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -225,9 +226,10 @@ export default function LoginPage() {
               : "Enter your credentials to access your account"}
           </p>
         </div>
-        {formContent}
+        <LoginForm isMobile={true} />
       </div>
 
+      {/* Desktop View */}
       <Card className="hidden sm:block w-full max-w-lg pt-4 px-4">
         <CardHeader>
           <CardTitle className="text-2xl sm:text-3xl">
@@ -239,7 +241,9 @@ export default function LoginPage() {
               : "Enter your credentials to access your account"}
           </CardDescription>
         </CardHeader>
-        <CardContent>{formContent}</CardContent>
+        <CardContent>
+          <LoginForm isMobile={false} />
+        </CardContent>
       </Card>
     </div>
   );
