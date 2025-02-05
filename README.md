@@ -88,3 +88,4 @@ To add a swagger to an API we need to add something like this:
  ```
 
  We can then visit the /api-doc/ page. This might need to be implemented for more APIs, as the time of writing it is used only for healthcheck.
+ At the moment we haven't been able to perform a successful build, therefore we had to move the /api-doc/ folder to /other and ignore it for now.

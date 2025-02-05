@@ -39,7 +39,7 @@ FOR ALL
 USING ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()))
 WITH CHECK ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()));
 
-CREATE POLICY "access_logs" ON devices
+CREATE POLICY "access_logs" ON access_logs
 FOR ALL
 USING ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()))
 WITH CHECK ("tenantId" IN (SELECT "id" FROM tenants WHERE "ownerId" = auth.uid()));

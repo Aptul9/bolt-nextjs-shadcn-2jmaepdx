@@ -86,7 +86,7 @@ export async function authenticateRequest(
   }
 }
 
-export async function authenticateDevice(accessKey: string) {
+export async function authenticateDevice(accessKey: string): Promise<string | null> {
   const { data, error } = await supabaseAdmin
     .from("devices")
     .select("tenantId")
@@ -98,5 +98,5 @@ export async function authenticateDevice(accessKey: string) {
     return null;
   }
 
-  return { tenantId: data.tenantId, supabaseAdmin };
+  return data.tenantId;
 }
