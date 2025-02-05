@@ -60,6 +60,17 @@ To check we can run:
 `npx realfavicon check 3000`
 There are still some issues with dark icons and stuff, might need to resolve
 
+# Robots
+We have used the `next-sitemap` module. We can define paths in the `next-sitemap.config.js` file in the root directory.
+We have added some paths to disallow or exclude from the scraper. Then a public/robots.txt and other sitemap files will be generated.
+To avoid the footer from being scraped we have added `data-nosnippet`:
+```
+<footer
+    className="border-t bg-background/60 backdrop-blur-md"
+    data-nosnippet
+>
+```
+
 # Swagger
 To generate the swagger we have used https://www.npmjs.com/package/next-swagger-doc
 And followed the documentation.
