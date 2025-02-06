@@ -12,21 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { UserSubscriptionInfoProps } from "@/types/types";
 
-interface User {
-  name: string;
-  subscriptionType: string;
-  status: boolean;
-  expiresAt: string;
-  remainingSlots?: number;
-}
-
-interface UserSubscriptionInfoProps {
-  user: User;
-  isEditing: boolean;
-  editedUser: User | null;
-  onUserChange: (field: string, value: any) => void;
-}
 
 export function UserSubscriptionInfo({ user, isEditing, editedUser, onUserChange }: UserSubscriptionInfoProps) {
   const handleNameChange = (value: string) => {

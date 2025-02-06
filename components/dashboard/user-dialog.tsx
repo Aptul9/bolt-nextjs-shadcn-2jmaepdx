@@ -37,41 +37,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface UserInfo {
-  email: string;
-  phoneNumber: string;
-  address?: string;
-  birthDate?: string;
-  birthPlace?: string;
-  nationality?: string;
-  gender?: string;
-  emergencyContact?: string;
-  notes?: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  subscriptionType: string;
-  status: boolean;
-  expiresAt: string;
-  remainingSlots?: number;
-  userInfo: UserInfo;
-}
-
-interface AccessLog {
-  id: string;
-  timestamp: string;
-  door: number;
-}
-
-interface UserDialogProps {
-  user: User | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onUserUpdate: (user: User) => void;
-}
+import { AccessLog, User, UserDialogProps } from "@/types/types";
 
 export function UserDialog({
   user,

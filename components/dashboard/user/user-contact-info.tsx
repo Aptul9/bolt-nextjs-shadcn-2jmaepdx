@@ -3,23 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { UserContactInfoProps } from "@/types/types";
 
-interface UserInfo {
-  email: string;
-  phoneNumber: string;
-  address?: string;
-}
-
-interface User {
-  userInfo: UserInfo;
-}
-
-interface UserContactInfoProps {
-  user: User;
-  isEditing: boolean;
-  editedUser: User | null;
-  onUserChange: (field: string, value: any) => void;
-}
 
 export function UserContactInfo({ user, isEditing, editedUser, onUserChange }: UserContactInfoProps) {
   if (isEditing) {

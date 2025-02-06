@@ -13,18 +13,9 @@ import {
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { AccessLog } from "@/types/types";
 
-interface AccessLog {
-  id: string;
-  timestamp: string;
-  door: number;
-}
-
-interface UserAccessLogsProps {
-  userId: string;
-}
-
-export function UserAccessLogs({ userId }: UserAccessLogsProps) {
+export function UserAccessLogs({ userId }: {userId: string}) {
   const [logs, setLogs] = useState<AccessLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

@@ -4,11 +4,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-interface NavLinksProps {
-  onClose?: () => void;
-}
-
-export function NavLinks({ onClose }: NavLinksProps) {
+export function NavLinks({ onClose }: { onClose?: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
 

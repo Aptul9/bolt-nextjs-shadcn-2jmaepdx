@@ -1,12 +1,6 @@
 "use client";
+import { FeatureCardProps } from "@/types/types";
 
-import { LucideIcon } from "lucide-react";
-
-interface FeatureCardProps {
-  title: string;
-  description: string;
-  Icon: LucideIcon;
-}
 
 export function FeatureCard({ title, description, Icon }: FeatureCardProps) {
   return (

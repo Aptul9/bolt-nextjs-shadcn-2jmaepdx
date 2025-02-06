@@ -11,26 +11,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { UserDetailsProps } from "@/types/types";
 
-interface UserInfo {
-  birthDate?: string;
-  birthPlace?: string;
-  nationality?: string;
-  gender?: string;
-  emergencyContact?: string;
-  notes?: string;
-}
 
-interface User {
-  userInfo: UserInfo;
-}
-
-interface UserDetailsProps {
-  user: User;
-  isEditing: boolean;
-  editedUser: User | null;
-  onUserChange: (field: string, value: any) => void;
-}
 
 export function UserDetails({ user, isEditing, editedUser, onUserChange }: UserDetailsProps) {
   if (isEditing) {

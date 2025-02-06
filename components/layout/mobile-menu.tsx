@@ -3,11 +3,8 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavLinks } from "./nav-links";
 import { useEffect, useRef } from "react";
+import { MobileMenuProps } from "@/types/types";
 
-interface MobileMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);

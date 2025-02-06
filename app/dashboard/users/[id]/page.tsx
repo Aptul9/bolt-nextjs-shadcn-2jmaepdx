@@ -9,28 +9,8 @@ import { UserContactInfo } from "@/components/dashboard/user/user-contact-info";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { User } from "@/types/types";
 
-interface UserInfo {
-  email: string;
-  phoneNumber: string;
-  address?: string;
-  birthDate?: string;
-  birthPlace?: string;
-  nationality?: string;
-  gender?: string;
-  emergencyContact?: string;
-  notes?: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  subscriptionType: string;
-  status: boolean;
-  expiresAt: string;
-  remainingSlots?: number;
-  userInfo: UserInfo;
-}
 
 export default function UserPage() {
   const { id } = useParams();
