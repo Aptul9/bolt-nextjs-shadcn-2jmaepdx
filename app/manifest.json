@@ -1,6 +1,6 @@
 {
-  "name": "CorePass",
-  "short_name": "CorePass",
+  "name": "PassCore",
+  "short_name": "PassCore",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

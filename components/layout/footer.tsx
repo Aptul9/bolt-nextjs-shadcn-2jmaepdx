@@ -12,7 +12,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-sm text-muted-foreground">
-            © {getCurrentYear()} CorePass. All rights reserved.
+            © {getCurrentYear()} PassCore. All rights reserved.
           </div>
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-muted-foreground text-center sm:text-right">
             {/* <div>Contrada Castromurro 39, Belvedere Marittimo 87023</div> */}
